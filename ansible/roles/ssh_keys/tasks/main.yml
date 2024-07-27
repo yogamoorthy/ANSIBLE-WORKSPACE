@@ -1,0 +1,8 @@
+---
+- name: Deploy Service Account SSH Keys
+  import_tasks: svc.yml
+
+# For Use with Domain-Joined Servers
+# - name: Deploy System Admin SSH Keys
+#   import_tasks: admins.yml
+...

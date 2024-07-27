@@ -1,0 +1,7 @@
+venv
+ansible/inventories
+ansible/modules
+ansible/roles/downtime
+ansible/roles/snapshot
+ansible/etc/vault_pass.txt
+ansible/etc/id_rsa

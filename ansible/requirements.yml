@@ -1,0 +1,65 @@
+---
+- src: ssh://git@github.hy-vee.cloud/ansible/downtime.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/SystemsTeam/snapshot.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/ping.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/SystemsTeam/linux_patching.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/sudoers.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/ssh_keys.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/rapid7_scan_assistant.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/linux_scripts.git
+  scm: git
+  version: main
+
+- src: ssh://git@github.hy-vee.cloud/SystemsTeam/role_nagios_agent.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/shell_snitch.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/crowdstrike.git
+  scm: git
+  version: master
+
+- src: ssh://git@github.hy-vee.cloud/ansible/rapid7_agent.git
+  scm: git
+  version: master   
+
+# - src: ssh://git@github.hy-vee.cloud/ansible/auditd.git
+#   scm: git
+#   version: master
+
+# - src: ssh://git@github.hy-vee.cloud/ansible/collectd.git
+#   scm: git
+#   version: master
+
+# - src: ssh://git@github.hy-vee.cloud/ansible/sshd.git
+#   scm: git
+#   version: master
+
+# - src: ssh://git@github.hy-vee.cloud/ansible/aide.git
+#   scm: git
+#   version: master
+...

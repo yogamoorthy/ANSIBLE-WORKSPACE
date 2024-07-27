@@ -1,0 +1,15 @@
+---
+#File roles/Crowdstrike/meta/main.yml
+
+galaxy_info:
+  author: Tony Welder 
+  description: Installs and manages Crowdstrike and removes fireeye.  This is antivirus software. 
+  license: MIT
+  platforms:
+  - name: CentOS
+  - name: RedHat
+  - name: SUSE
+  - name: Debian
+  categories:
+  - system
+...

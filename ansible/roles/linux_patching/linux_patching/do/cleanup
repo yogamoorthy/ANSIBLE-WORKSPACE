@@ -1,0 +1,8 @@
+#!/bin/bash
+
+rm -rf ./ansible/inventories
+rm -rf ./ansible/modules
+rm -rf ./ansible/roles/downtime
+rm -rf ./ansible/roles/snapshot
+rm -f ./ansible/etc/vault_pass.txt
+rm -rf ./venv

@@ -1,0 +1,14 @@
+#Auditd configuration enforcement
+
+galaxy_info:
+  author: Tony Welder
+  description: cmdlogger for logged in users running bash
+  license: MIT
+  platforms:
+  - name: RedHat
+  - name: CentOS
+  - name: Debian
+  - name: SUSE
+  categories:
+  - system
+dependencies:

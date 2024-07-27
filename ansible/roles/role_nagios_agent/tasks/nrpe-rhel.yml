@@ -1,0 +1,206 @@
+---
+#- name: ensure a list of packages installed
+#  yum:
+#    name: "{{ packages }}"
+#    state: present
+#  vars:
+#    packages:
+#    - nrpe
+#    - nagios-common
+#    - nagios-plugins-all
+#  become: yes
+
+- name: Create nrpe log and set permissions
+  file:
+    path: /var/log/nrpe.log
+    owner: nrpe
+    group: nrpe
+    mode: "0644"
+    state: touch
+
+- name: Plugging nrpe.cfg something good
+  copy:
+    src: rhel-nrpe.cfg
+    dest: /etc/nagios/nrpe.cfg
+    owner: nrpe
+    group: nrpe
+    mode: "0644"
+
+- name: example copying file with owner and permissions
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: 0755
+  loop:
+    - src: check_mem
+      dest: /usr/lib64/nagios/plugins/check_mem
+    - src: check_cpu_stats.sh
+      dest: /usr/lib64/nagios/plugins/check_cpu_stats.sh
+    - src: check_wms_tran_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_tran_log.sh
+    - src: check_wms_ship_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_ship_log.sh
+    - src: check_ping_latency.sh
+      dest: /usr/lib64/nagios/plugins/check_ping_latency.sh
+    - src: check_wms_pix_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_pix_log.sh
+    - src: check_wms_cig1.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_cig1.sh
+    - src: check_wms_phrmtote.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_phrmtote.sh
+    - src: check_wms_taxright.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_taxright.sh
+    - src: check_wms_wavecube.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_wavecube.sh
+    - src: check_wms_service.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_service.sh
+    - src: check_wms_printers.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_printers.sh
+    - src: check_wms_waveabrt.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_waveabrt.sh
+    - src: check_wms_vocollect.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_vocollect.sh
+    - src: check_api_latency.sh
+      dest: /usr/lib64/nagios/plugins/check_api_latency.sh
+    - src: check_wms_stalesalesorders.sh 
+      dest: /usr/lib64/nagios/plugins/check_wms_stalesalesorders.sh
+    - src: curl-format.txt
+      dest: /usr/lib64/nagios/plugins/curl-format.txt
+    - src: check_wms_globalroute.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_globalroute.sh
+    - src: check_wms_fileerr.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_fileerr.sh
+    - src: check_wms_routederr.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_routederr.sh
+    - src: check_wms_process_ownership.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_process_ownership.sh
+    - src: check_wms_stale_drops.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_stale_drops.sh
+    - src: check_wms_lpn.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_lpn.sh
+    - src: check_wms_stalewaves.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_stalewaves.sh
+    - src: check_wms_stuckinloadedstatus.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_stuckinloadedstatus.sh
+    - src: check_wms_fulfillment_drop_errors.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_fulfillment_drop_errors.sh
+    - src: check_wms_distribution_center_drop_errors.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_distribution_center_drop_errors.sh
+    - src: check_wms_pkinvoice.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_pkinvoice.sh
+    - src: check_asm.sh
+      dest: /usr/lib64/nagios/plugins/check_asm.sh
+    - src: check_wms_lpn_wave_completion.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_lpn_wave_completion.sh
+    - src: check_purges.sh
+      dest: /usr/lib64/nagios/plugins/check_purges.sh
+    - src: check_spp.sh
+      dest: /usr/lib64/nagios/plugins/check_spp.sh 
+    - src: check_wms_stuck_batch.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_stuck_batch.sh
+    - src: check_wms_vocollect_mhe_endpoints.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_vocollect_mhe_endpoints.sh
+    - src: check_wms_olpn_mhe_endpoints.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_olpn_mhe_endpoints.sh
+    - src: check_wms_rhelmif_stale_drops.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_rhelmif_stale_drops.sh
+    - src: check_wms_load_scheduler.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_load_scheduler.sh
+    - src: check_dns_configuration.sh
+      dest: /usr/lib64/nagios/plugins/check_dns_configuration.sh
+    - src: check_wms_pulling_count.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_pulling_count.sh
+    - src: check_wms_rhelmif_salesorder_drops.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_rhelmif_salesorder_drops.sh
+    - src: check_wms_listeners.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_listeners.sh
+    - src: check_wms_timestamp.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_timestamp.sh
+    - src: check_wms_endwave.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_endwave.sh
+    - src: check_wms_wave_timestamp.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_wave_timestamp.sh
+    - src: check_wms_waves_aborted.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_waves_aborted.sh
+    - src: check_mounts.sh
+      dest: /usr/lib64/nagios/plugins/check_mounts.sh
+    - src: check_wms_endpoints.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_endpoints.sh
+    - src: check_wms_cd_order.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_cd_order.sh
+    - src: check_rhelmif_logs.sh
+      dest: /usr/lib64/nagios/plugins/check_rhelmif_logs.sh
+    - src: check_wms_customwaves.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_customwaves.sh
+    - src: check_fuse_folder.sh
+      dest: /usr/lib64/nagios/plugins/check_fuse_folder.sh
+    - src: check_chasewaves.sh
+      dest: /usr/lib64/nagios/plugins/check_chasewaves.sh
+    - src: check_routes.sh
+      dest: /usr/lib64/nagios/plugins/check_routes.sh
+    - src: check_wms_cert.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_cert.sh
+    - src: check_wms_mip_truststore.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_mip_truststore.sh
+    - src: check_wms_java.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_java.sh
+    - src: check_wms_ldc_msg_queue_errors.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_ldc_msg_queue_errors.sh
+    - src: check_wms_doubles.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_doubles.sh
+  become: yes
+
+# - name: template checks deployment
+#   template:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     owner: root
+#     group: root
+#     mode: 0755
+#   loop:
+#     - src: pac.sh.j2
+#       dest: /usr/lib64/nagios/plugins/pac.sh
+#   become: yes
+
+- name: copying nrpe sudoers file
+  copy:
+    src: sudoers_nrpe
+    dest: /etc/sudoers.d/nrpe
+    owner: root
+    group: root
+    mode: "0640"
+
+- name: copying nrpe fix script
+  copy:
+    src: nrpe_fixer.sh
+    dest: /opt/hy-vee/scripts/nrpe_fixer.sh
+    owner: root
+    group: root
+    mode: "0754"
+
+- name: Ensure cron for nrpe fix script is configured
+  cron:
+    name: "ensure nrpe pid dir exists and nrpe is running"
+    user: root
+    minute: "*/10"
+    job: "/opt/hy-vee/scripts/nrpe_fixer.sh"
+
+- name: Enable and Restart NRPE Agent
+  service:
+    name: nrpe
+    state: restarted
+    enabled: yes
+  become: yes
+
+- name: Is IP Tables Running
+  command: systemctl is-active iptables.service
+  become: yes
+  register: iptables_status
+  ignore_errors: true
+  notify: 
+    - Import IPtables Rule NRPE
+    - Save IPtables
+    - Reload IPtables
+...

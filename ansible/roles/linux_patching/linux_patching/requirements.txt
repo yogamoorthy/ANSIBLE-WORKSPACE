@@ -1,0 +1,10 @@
+ansible
+ansible-lint
+requests
+PyVmomi
+pykerberos
+requests-kerberos
+ipaddress
+setuptools
+dnspython
+pypsrp

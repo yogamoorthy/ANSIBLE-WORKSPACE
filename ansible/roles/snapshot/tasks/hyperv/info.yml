@@ -1,0 +1,92 @@
+---
+- name: Get Store Code
+  set_fact:
+    store_code: "{{ inventory_hostname_short | regex_replace('(?i)nagios', '') }}"
+    
+- name: Validate HV1 Exists
+  wait_for:
+    host: "{{ store_code }}hv1.hy-vee.net"
+    port: 5985
+    timeout: 5
+    state: started
+  delegate_to: localhost
+  failed_when: false
+  register: HV1Exists
+
+- name: Validate HV2 Exists
+  wait_for:
+    host: "{{ store_code }}hv2.hy-vee.net"
+    port: 5985
+    timeout: 5
+    state: started
+  delegate_to: localhost
+  failed_when: false
+  register: HV2Exists
+
+# - name: Debugging - HV1Exists??
+#   debug:
+#     var: HV1Exists
+
+# - name: Debugging - HV2Exists??
+#   debug:
+#     var: HV2Exists
+
+- name: Check VM Power State on HV1
+  win_shell: |
+    $nagVM_HV1 = Get-VM | Where-Object VMName -Like "*Nagios*" 
+    $nagVM_HV1.State
+  register: VMStatusHV1
+  ignore_errors: yes
+  delegate_to: "{{ store_code }}hv1.hy-vee.net"
+  when: (HV1Exists.msg is not defined or HV1Exists.msg is not match("Timeout*"))
+
+# - name: Debugging - VM State on HV1
+#   debug:
+#     msg: "Nagios VM is {{ VMStatusHV1.stdout }}"
+#   when: 
+#     - VMStatusHV1 is defined
+#     - VMStatusHV1.changed == True
+
+- name: Set vm_host if HV1
+  set_fact:
+    vm_host: "{{ store_code }}hv1.hy-vee.net"
+    vm_drac: "{{ store_code }}HV1DRAC"
+  when: 
+    - HV1Exists.failed == False
+    - VMStatusHV1.changed == True
+    - "'Running' in VMStatusHV1.stdout"
+
+- name: Check VM Power State on HV2
+  win_shell: |
+    $nagVM_HV2 = Get-VM | Where-Object VMName -Like "*Nagios*"
+    $nagVM_HV2.State
+  register: VMStatusHV2
+  ignore_errors: yes
+  delegate_to: "{{ store_code }}hv2.hy-vee.net"
+  when: (HV2Exists.msg is not defined or HV2Exists.msg is not match("Timeout*"))
+
+# - name: Debugging - VM State on HV2
+#   debug:
+#     msg: "Nagios VM is {{ VMStatusHV2.stdout }}"
+#   when: 
+#     - VMStatusHV2 is defined
+#     - VMStatusHV2.changed == True
+
+- name: Set vm_host if HV2
+  set_fact:
+    vm_host: "{{ store_code }}hv2.hy-vee.net"
+    vm_drac: "{{ store_code }}HV2DRAC"
+  when: 
+    - HV2Exists.failed == False
+    - VMStatusHV2.changed == True
+    - "'Running' in VMStatusHV2.stdout"
+
+- name: Fail If We Can't Find Host
+  fail:
+    msg: could not find VM Host!!!
+  when: vm_host is not defined
+
+# - name: Debugging - host/drac Output
+#   debug:
+#     msg: "Host: {{ vm_host }} | Drac: {{ vm_drac }}"
+...

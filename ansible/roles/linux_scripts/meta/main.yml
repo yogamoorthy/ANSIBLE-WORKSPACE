@@ -1,0 +1,10 @@
+---
+#Provision server to support Oracle RAC installations
+galaxy_info:
+  author: Linux Team
+  description: Central Location for Linux Scripts
+  license: MIT
+  platforms:
+  - name: RedHat
+  categories:
+  - system

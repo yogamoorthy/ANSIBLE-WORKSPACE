@@ -1,0 +1,7 @@
+---
+bashrc:
+  SLES: bash.bashrc.local
+  RedHat: bashrc
+  CentOS: bashrc
+  Debian: bash.bashrc
+  Ubuntu: bash.bashrc

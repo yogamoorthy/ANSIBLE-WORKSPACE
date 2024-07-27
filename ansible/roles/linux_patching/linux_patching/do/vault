@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set +v
+
+SECRETS=(
+    'ansible_vault_password'
+)
+
+retrieve_secrets() {
+    auth_token=`curl -X POST https://vault.prod.hy-vee.cloud/v1/auth/approle/login \
+        -d "{\"role_id\": \"$1\", \"secret_id\": \"$2\"}" | jq -r ".auth.client_token"`
+    for key in "${SECRETS[@]}"; do
+        value=`curl -X GET https://vault.prod.hy-vee.cloud/v1/jenkins/data/systems/gk_installer -H "X-Vault-Token: ${auth_token}" \
+            | jq -r ".data.data.${key}"`
+        export ${key}="${value}"
+    done
+}
+
+retrieve_secrets $1 $2
+
+echo "${ansible_vault_password}" >> ./ansible/etc/vault_pass.txt

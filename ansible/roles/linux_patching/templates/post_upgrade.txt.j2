@@ -1,0 +1,4 @@
+{{ post_headers }}
+{% for host in ansible_play_batch %}
+{{ hostvars[host]['dev_info'] }}
+{% endfor %}

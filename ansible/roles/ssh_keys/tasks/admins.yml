@@ -1,0 +1,34 @@
+---
+- name: Create accounts if accounts don't exist
+  user:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ admins }}"
+
+- name: Update permissions on home directory
+  file:
+    dest: "/home/{{ item }}"
+    state: directory
+    owner: "{{ item }}"
+    group: "domain users"
+    mode: 0700
+  loop: "{{ admins }}"
+
+- name: Create .ssh Directory
+  file:
+    dest: "/home/{{ item }}/.ssh"
+    state: directory
+    owner: "{{ item }}"
+    group: "domain users"
+    mode: 0700
+  loop: "{{ admins }}"
+
+- name: Copy authorized_keys to .ssh
+  copy:
+    src: files/admins/{{ item }}/authorized_keys
+    dest: "/home/{{ item }}/.ssh"
+    owner: "{{ item }}"
+    group: "domain users"
+    mode: 0600
+  loop: "{{ admins }}"
+...

@@ -1,0 +1,40 @@
+---
+- name: Ensure Service Accounts Exist 
+  user:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ accounts }}"
+
+- name: Ensure Group Exists
+  group:
+    name: "{{ item }}"
+    state: present
+  loop: "{{ accounts }}"
+
+- name: Update permissions on Service Accounts
+  file:
+    dest: "/home/{{ item }}"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0700
+  loop: "{{ accounts }}"
+
+- name: Check .ssh Directory Exists
+  file:
+    dest: "/home/{{ item }}/.ssh"
+    state: directory
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0700
+  loop: "{{ accounts }}"
+
+- name: Copy authorized_keys to .ssh
+  copy:
+    src: files/accounts/{{ item }}/authorized_keys
+    dest: "/home/{{ item }}/.ssh"
+    owner: "{{ item }}"
+    group: "{{ item }}"
+    mode: 0600
+  loop: "{{ accounts }}"
+...

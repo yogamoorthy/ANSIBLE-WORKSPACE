@@ -1,0 +1,13 @@
+{% set syslog_source = 's_src' if ansible_distribution == 'Debian' else 's_sys' %}
+
+{% if 'syslog-ng.service' in ansible_facts.services and 'rsyslog.service' in ansible_facts.services %}
+destination d_snitch { file("/var/log/shell_snitch/ss.log"); };
+filter f_snitch   { facility(local6); };
+log { source({{ syslog_source }}); filter(f_snitch); destination(d_snitch); };
+{% elif 'syslog-ng.service' in ansible_facts.services %}
+destination d_snitch { file("/var/log/shell_snitch/ss.log"); };
+filter f_snitch   { facility(local6); };
+log { source({{ syslog_source }}); filter(f_snitch); destination(d_snitch); };
+{% elif 'rsyslog.service' in ansible_facts.services %}
+local6.*    /var/log/shell_snitch/ss.log
+{% endif %}

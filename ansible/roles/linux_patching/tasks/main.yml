@@ -1,0 +1,22 @@
+---
+- name: Import Pre Check Tasks
+  import_tasks: pre_checks.yml
+
+- name: Shutdown Main Application(s)
+  systemd:
+    name: "{{ item }}"
+    state: stopped
+  with_items: "{{ application | default([]) }}"
+  when: application | default([]) != "everseen"
+  notify: Start Main Application(s)
+
+- name: Shutdown Everseen, if Everseen Server
+  shell:
+    cmd: ~/everseen.sh stop
+  become: yes
+  become_user: podman-svc
+  when: application == "everseen"
+
+- name: Import Update Tasks
+  import_tasks: update.yml
+...

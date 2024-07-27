@@ -1,0 +1,15 @@
+---
+galaxy_info:
+  author: William Vanderlip-Mclean & Jiovanni Tapia
+  description: Creates snapshots in VSphere.
+  license: MIT
+  platforms:
+  - name: RedHat
+  - name: SUSE
+  - name: Debian
+  - name: Ubuntu
+  - name: CentOS
+  categories:
+  - system
+  - patching
+...

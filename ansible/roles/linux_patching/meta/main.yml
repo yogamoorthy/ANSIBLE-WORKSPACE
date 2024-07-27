@@ -1,0 +1,14 @@
+galaxy_info:
+  author: William Vanderlip-Mclean, Jiovanni Tapia, Yagamoorthy S
+  description: Updates all packages to the latest version.
+  license: MIT
+  platforms:
+  - name: RedHat
+  - name: SUSE
+  - name: Debian
+  - name: Ubuntu
+  - name: CentOS
+  categories:
+  - system
+  - patching
+  - vulnerability remediation

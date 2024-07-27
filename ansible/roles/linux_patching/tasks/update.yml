@@ -1,0 +1,18 @@
+---
+- name: Get Debian Updates
+  apt:
+    update_cache: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Upgrade all packages
+  package:
+    name: '*'
+    state: latest
+  notify: 
+    - Reboot Server
+    - Check Service Status
+    - Grab New Uptime
+    - Build Out CSV Content
+    - Generate CSV File
+    - Send Post Patching Email
+...

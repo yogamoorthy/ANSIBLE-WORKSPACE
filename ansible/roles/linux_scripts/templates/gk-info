@@ -1,0 +1,140 @@
+#!/bin/bash
+
+# Color Variables
+red='\033[0;31m'
+green='\033[0;32m'
+lightgreen='\033[1;32m'
+yellow='\033[1;33m'
+nc='\033[0m'
+
+application_name="$1"
+station_path="/usr/local/gkretail/basecomponents/sm.hybridinfoserver/config/stations"
+
+display_help() {
+  echo
+  echo -e "${green}Usage: $0 [application_name]... [option...]${nc}" >&2
+  echo
+  echo -e "${lightgreen}\tstation\t\tOutput the station file name${nc}"
+  echo -e "${yellow}\tExample: $0 cis station${nc}"
+  echo
+  echo -e "${lightgreen}\tstation-path\tOutput the path to station files${nc}"
+  echo -e "${yellow}\tExample: $0 cis station-path${nc}"
+  echo
+  echo -e "${lightgreen}\thome\t\tOutput the shared application home${nc}"
+  echo -e "${yellow}\tExample: $0 cis home${nc}"
+  echo
+  echo -e "${lightgreen}\tversion\t\tOutputs the current running version${nc}"
+  echo -e "${yellow}\tExample: $0 cis version${nc}"
+  echo
+  echo -e "${lightgreen}\tupgradeable\tOutputs 'update', 'stay' or 'downgrade' depending if the build is gt or eq${nc}"
+  echo -e "${yellow}\tExample: $0 cis upgradeable 1.0.0-b09${nc}"
+  echo
+  echo -e "${lightgreen}\tcontext\t\tOutput the tomcat context${nc}"
+  echo -e "${yellow}\tExample: $0 cis context${nc}"
+  echo
+  echo -e "${lightgreen}\tall\t\tOutputs all of the above${nc}"
+  echo -e "${yellow}\tExample: $0 cis all${nc}"
+  echo
+  exit 1
+}
+
+application_info() {
+  app_dir_count=$(find /usr/local/ -maxdepth 2 -name $application_name 2>/dev/null | wc -l)
+
+  if [ $app_dir_count -eq 1 ];
+    then
+      app_dir=$(find /usr/local/ -maxdepth 2 -name $application_name 2>/dev/null)
+    elif [ $app_dir_count -eq 2 ];
+      then
+        app_dir=$(find /usr/local/gkretail -maxdepth 2 -name $application_name 2>/dev/null)
+    elif [ "$application_name" == "ec" ];
+      then
+        app_dir=$(find /usr/local/gkretail -maxdepth 2 -name "$application_name.*" 2>/dev/null)
+    else
+      echo "Could not find application home... check the application name"
+      exit 1
+  fi
+}
+
+station() {
+  application_info
+  station_name=$(grep -rw "$app_dir$" $station_path | tail -1 | awk -F: '{ print $1 }' | awk -F/ '{ print $9 }' )
+}
+
+home() {
+  application_info
+  application_home=$(grep -rw "$app_dir$" $station_path | tail -1 | awk -F: '{ print $2 }' | awk -F= '{ print $2 }' )
+}
+
+version() {
+  application_version=$(grep "info.version" $station_path/$station_name | awk -F= '{ print $2 }')
+}
+
+context() {
+  application_context=$(find $app_dir/setup -name "*$application_name.xml" | awk -F/ '{ print $7 }' | awk -F. '{ print $1 }')
+}
+
+check_version() {
+  current_version=$(echo "$application_version" | grep -o '...$' | sed 's|[b]||g')
+  input_version=$(echo "$1" | grep -o '...$' | sed 's|[b]||g')
+  if [ "$input_version" -gt "$current_version" ];
+    then
+      tell_action="upgrade"
+    elif [ "$input_version" -eq "$current_version" ];
+      then
+        tell_action="stay"
+    else
+      tell_action="downgrade"
+  fi
+  echo "$tell_action"
+}
+
+case "$2" in
+  station)
+    station
+    echo "$station_name"
+    ;;
+
+  station-path)
+    echo "$station_path"
+    ;;
+
+  home)
+    home
+    echo "$application_home"
+    ;;
+
+  version)
+    station
+    version
+    echo "$application_version"
+    ;;
+
+  context)
+    application_info
+    context
+    echo "$application_context"
+    ;;
+
+  upgradeable)
+    station
+    version
+    check_version $3
+    ;;
+
+  all)
+    station
+    context
+    version
+    home
+    echo -e "Applciation Context:\t\t$application_context"
+    echo -e "Applciation Version:\t\t$application_version"
+    echo -e "Application Home:\t\t$application_home"
+    echo -e "Station File name:\t\t$station_name"
+    echo -e "Station File Path:\t\t$station_path"
+    ;;
+
+    *)
+      display_help
+      ;;
+esac

@@ -1,0 +1,15 @@
+---
+application: 
+
+# Pre Check Settings
+pre_headers: Hostname,Ip Address,Kernel Version,Boot_TotalSize Used and Avail,Temp_Total Size Used and Avail,boot_availspace,Uptime,Comment
+
+# Post Check Settings
+post_headers: "Hostname,Ip Address,{% for app in application %}{{ app }},{% endfor %}Uptime"
+
+# Settings
+email_host: smtp.hy-vee.com
+email_from: root@localhost
+email_to: linuxadmins@hy-vee.com
+csv_path: /tmp
+...

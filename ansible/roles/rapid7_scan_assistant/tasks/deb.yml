@@ -1,0 +1,52 @@
+---
+- name: Download Scan Assistant for Debian/Ubuntu
+  get_url:
+    url: https://artifactory.prod.hy-vee.cloud/artifactory/systems-linux-team-local/{{ deb_package }}
+    dest: /tmp/
+    checksum: sha256:d0100a6e170dfb02948503d8d081b42fbece4f5d6620adf3f74da7301b8c8a7d
+    validate_certs: false
+  when: service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+  become: yes
+  become_user: root
+  ignore_errors: True
+  register: download_status
+
+- name: Transfer Package to Server if Artifactory Download Fails
+  copy: 
+    src: "{{ deb_package }}"
+    dest: /tmp/{{ deb_package }}
+    owner: root
+    group: root
+    mode: '0640'
+  when: 
+    - service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+    - download_status.changed == False
+  become: yes
+  become_user: root
+
+- name: Install Scan Assistant
+  apt:
+    deb: /tmp/{{ deb_package }}
+  when: service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+  become: yes
+  become_user: root
+
+- name: Deploy config
+  template:
+    src: templates/deb-config.json.j2
+    dest: /etc/rapid7/ScanAssistant/config.json
+    owner: root
+    group: root
+    mode: '0644'
+  when: service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+  become: yes
+  become_user: root
+
+- name: Ensure Scan Assistant is on and enabled
+  service:
+    name: R7ScanAssistant.service
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+...

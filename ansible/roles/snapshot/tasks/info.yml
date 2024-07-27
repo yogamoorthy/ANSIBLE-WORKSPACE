@@ -1,0 +1,57 @@
+---
+- name: Search for VM in WDM Datacenter
+  vmware_guest_find:
+    hostname: wdm-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+  register: vm_info_wdm
+  delegate_to: localhost
+  ignore_errors: true
+
+- name: Search for VM in Corp Datacenter
+  vmware_guest_find:
+    hostname: corpvcenter-v.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+  register: vm_info_corp
+  delegate_to: localhost
+  ignore_errors: true
+  when:
+    - vm_info_wdm.folders is not defined 
+
+- name: Search for VM in Chaska Datacenter
+  vmware_guest_find:
+    hostname: cha-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+  register: vm_info_cha
+  delegate_to: localhost
+  ignore_errors: true
+  when:
+    - vm_info_wdm.folders is not defined 
+    - vm_info_corp.folders is not defined
+
+- name: Set Variables for WDM
+  set_fact:
+    folder: "{{ vm_info_wdm.folders | flatten | first }}"
+  delegate_to: localhost
+  when: vm_info_wdm.folders is defined
+
+- name: Set Variables for Corporate
+  set_fact:
+    folder: "{{ vm_info_corp.folders | flatten | first }}"
+  delegate_to: localhost
+  when: vm_info_corp.folders is defined
+
+- name: Set Variables for Chaska
+  set_fact:
+    folder: "{{ vm_info_cha.folders | flatten | first }}"
+  delegate_to: localhost
+  when: vm_info_cha.folders is defined
+...

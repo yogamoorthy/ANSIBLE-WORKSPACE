@@ -1,0 +1,35 @@
+- hosts: gk_prod_mgr:gk_prod_sdc:gk_prod_pos:gk_prod_webpos:gk_prod_csrv
+  gather_facts: true
+
+# Snapshots can be created prior to running your roles. You can change the variables below.
+# - hosts: s2badge_prod
+#   gather_facts: false
+#   roles:
+#     - role: snapshot
+#   vars: 
+#     input: add
+#     snapshot_name: "ansible"
+#     snapshot_description: "before running ansible roles"
+
+- hosts: gk_prod_mgr:gk_prod_sdc:gk_prod_pos:gk_prod_webpos:gk_prod_csrv
+  gather_facts: false
+  vars:
+    downtime_duration: 180
+    comment: "Maintenance"
+  roles:
+    - role: downtime
+
+# - hosts: s2badge_prod
+#   gather_facts: false
+#   roles:
+#     - role: sudoers
+#     - role: ssh_keys
+#     - role: crowdstrike
+#     - role: rapid7_agent
+#     - role: rapid7_scan_assistant
+#     - role: shell_snitch
+#     - role: linux_scripts
+#     - role: role_nagios_agent
+#   become: true
+#   become_user: root
+

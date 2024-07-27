@@ -1,0 +1,13 @@
+#!/bin/bash
+
+export ANSIBLE_CONFIG="etc/ansible.cfg"
+
+python3 -m venv ./venv
+. ./venv/bin/activate
+python3 -m pip install --upgrade pip
+pip install -r requirements.txt
+
+git clone git@github.hy-vee.cloud:ansible/inventories.git ./ansible/inventories
+git clone git@github.hy-vee.cloud:SystemsTeam/systems-ansible-modules.git ./ansible/modules
+
+ansible-galaxy install -r ansible/requirements.yml -p ./ansible/roles

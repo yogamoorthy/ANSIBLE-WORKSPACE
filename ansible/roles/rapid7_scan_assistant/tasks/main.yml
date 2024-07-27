@@ -1,0 +1,14 @@
+---
+- name: Pull state of all services
+  service_facts:
+  register: service_facts
+  changed_when: false
+
+- name: Run RHEL/SUSE specific steps
+  import_tasks: "rpm.yml"
+  when: ansible_facts['os_family'] == 'RedHat' or ansible_facts['os_family'] == 'Suse'
+
+- name: Run Debian specific steps
+  import_tasks: "deb.yml"
+  when: ansible_facts['os_family'] == 'Debian'
+...

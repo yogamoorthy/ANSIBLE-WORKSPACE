@@ -1,0 +1,104 @@
+---
+- name: Downloads suse_nagios_plugins
+  get_url:
+    url: https://artifactory.prod.hy-vee.cloud/artifactory/wms-management-local/suse_nagios_plugins.tgz
+    dest: /tmp/nagios_plugins.tgz
+    mode: "0755"
+  # connection: local
+  become: yes
+
+#Installs IOSTAT for check_cpu_stats.sh
+- name: ensure a list of packages installed
+  zypper:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - nrpe
+    - sysstat
+  become: yes
+
+- name: inputs needed files
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: nagios
+    group: root
+    mode: "0755"
+  become: yes
+  with_items:
+    - src: check_cpu_stats.sh
+      dest: "/usr/lib/nagios/plugins/"
+    - src: check_mem
+      dest: "/usr/lib/nagios/plugins/"
+    - src: check_gkservice.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_service.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_apachelb.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_gk_connection.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_app_status.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_suse_memory
+      dest: /usr/lib/nagios/plugins/
+    - src: check_gk_java.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_gk_ucon_export.sh
+      dest: /usr/lib/nagios/plugins/
+    - src: check_mounts.sh
+      dest: /usr/lib/nagios/plugins/
+
+- name: Create nrpe config and set permissions
+  file:
+    path: "{{ item }}"
+    owner: nagios
+    group: root
+    state: directory
+    mode: "0755"
+  with_items:
+    - /run/nrpe
+    - /etc/nagios
+  become: yes
+
+- name: inputs nrpe.cfg
+  copy:
+    src: suse_nrpe.cfg
+    dest: /etc/nrpe.cfg
+  become: yes
+
+- name: Copys in nagios plugins
+  copy:
+    src: "/tmp/nagios_plugins.tgz"
+    dest: "/usr/lib/nagios/plugins/nagios_plugins.tgz"
+    owner: nagios
+    group: root
+    mode: "0755"
+    remote_src: yes
+  become: yes
+
+- name: extracts nagios plugins
+  unarchive:
+    src: "/usr/lib/nagios/plugins/nagios_plugins.tgz"
+    dest: "/usr/lib/nagios/plugins"
+    owner: nagios
+    group: root
+    mode: "0755"
+    remote_src: yes
+  become: yes
+
+- name: set ownership on nagios dir
+  file:
+    path: /usr/lib/nagios/
+    owner: nagios
+    recurse: yes
+  become: yes
+
+- name: Enable and Restart NRPE Agent
+  service:
+    name: nrpe
+    state: restarted
+    enabled: yes
+  become: yes
+...

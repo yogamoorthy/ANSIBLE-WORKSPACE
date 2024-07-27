@@ -1,0 +1,13 @@
+---
+#sudoers files enforcement
+
+galaxy_info:
+  author: Andrew Wickham
+  description: Manage sudoers files
+  license: MIT
+  platforms:
+  - name: RedHat
+  - name: CentOS
+  categories:
+  - system
+dependencies:

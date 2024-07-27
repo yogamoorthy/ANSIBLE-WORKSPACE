@@ -1,0 +1,43 @@
+---
+- name: Remove Snapshot in WDM
+  vmware_guest_snapshot:
+    hostname: wdm-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: wdm
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: remove_all
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_wdm.folders is defined
+
+- name: Remove Snapshot in Corporate
+  vmware_guest_snapshot:
+    hostname: corpvcenter-v.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: corporate
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: remove_all
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_corp.folders is defined
+
+- name: Remove Snapshot in Chaska
+  vmware_guest_snapshot:
+    hostname: cha-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: cha
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: remove_all
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_cha.folders is defined
+...

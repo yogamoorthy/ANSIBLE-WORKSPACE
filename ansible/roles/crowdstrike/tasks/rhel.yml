@@ -1,0 +1,189 @@
+---
+- name: Check if proper version of crowdstrike is installed
+  shell: "rpm -qa | grep falcon-sensor"
+  register: rpm_output
+  changed_when: false
+  ignore_errors: true
+
+- name: Discover OS Version Number
+  set_fact: 
+    version: "{{ ansible_facts['distribution_major_version']}}"
+
+# ======================== Version 7 =============================
+- name: Copy GPG Key to Server
+  copy:
+    src: files/key.gpg
+    dest: /tmp/fskey.gpg
+    mode: 0644
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+
+- name: Import GPG Key
+  rpm_key:
+    state: present
+    key: /tmp/fskey.gpg
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v7 - RHEL/CentOS - Copy falcon-sensor package to server
+  get_url:
+    url: "{{ artifactory }}/rpm-local/7/{{ rhel7_package }}"
+    dest: /tmp/
+    checksum: sha256:bd99666c8c850f776348f96f6182320be499e97f4cae0c8c50e3d517c1ee9457
+    validate_certs: false
+  when: 
+    - version == '7'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v7 - Ensure falcon-sensor is installed
+  package:
+    name: /tmp/{{ rhel7_package }}
+    state: latest
+  when: 
+    - version == '7'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v7 - Clean up installation artifact
+  file:
+    path: /tmp/{{ rhel7_package }}
+    state: absent
+  become: yes
+  become_user: root
+  when: version == '7'
+
+# ======================== Version 8 =============================
+- name: Copy GPG Key to Server
+  copy:
+    src: files/key.gpg
+    dest: /tmp/fskey.gpg
+    mode: 0644
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+
+- name: Import GPG Key
+  rpm_key:
+    state: present
+    key: /tmp/fskey.gpg
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v8 - RHEL/CentOS - Copy falcon-sensor package to server
+  get_url:
+    url: "{{ artifactory }}/rpm-local/8/{{ rhel8_package }}"
+    dest: /tmp/
+    checksum: sha256:0de6f2c274a70a663e6f0e64445e834f89f16bf9b71ae672273285dc0dbe6eb7
+    validate_certs: false
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v8 - Ensure falcon-sensor is installed
+  package:
+    name: /tmp/{{ rhel8_package }}
+    state: latest
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v8 - Clean up installation artifact
+  file:
+    path: /tmp/{{ rhel8_package }}
+    state: absent
+  become: yes
+  become_user: root
+  when: version == '8'
+
+# ======================== Version 9 =============================
+- name: Copy GPG Key to Server
+  copy:
+    src: files/key.gpg
+    dest: /tmp/fskey.gpg
+    mode: 0644
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+
+- name: Import GPG Key
+  rpm_key:
+    state: present
+    key: /tmp/fskey.gpg
+  when: 
+    - version == '8'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v9 - RHEL/CentOS - Copy falcon-sensor package to server
+  get_url:
+    url: "{{ artifactory }}/rpm-local/9/{{ rhel9_package }}"
+    dest: /tmp/
+    checksum: sha256:41c1e3de5925be6df07a4a524333ef9212ac7d04cb270e13f79b47767ab0c421
+    validate_certs: false
+  when: 
+    - version == '9'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v9 - Ensure falcon-sensor is installed
+  package:
+    name: /tmp/{{ rhel9_package }}
+    state: latest
+  when: 
+    - version == '9'
+    - service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or 
+      rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: v9 - Clean up installation artifact
+  file:
+    path: /tmp/{{ rhel9_package }}
+    state: absent
+  become: yes
+  become_user: root
+  when: version == '9'
+
+# ===================================================================
+- name: Ensure CID (Customer ID) is configured
+  command: /opt/CrowdStrike/falconctl -s --cid={{ cid }}
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] is not defined or
+        service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] != "running"
+  become: yes
+  become_user: root
+
+- name: Ensure CrowdStrike is on and enabled
+  service:
+    name: falcon-sensor.service
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+...

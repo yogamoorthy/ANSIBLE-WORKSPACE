@@ -1,0 +1,5 @@
+---
+r7_agent: "agent_installer-3.2.3.7.sh"
+r7_token: "us:6a78c155-e528-49d3-b5d4-6bb98614a40f"
+
+artifactory: "https://artifactory.prod.hy-vee.cloud/artifactory"

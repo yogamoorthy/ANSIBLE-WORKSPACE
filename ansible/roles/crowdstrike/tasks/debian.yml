@@ -1,0 +1,58 @@
+---
+- name: Check if proper version of crowdstrike is installed
+  shell: "dpkg -V falcon-sensor"
+  register: dpkg_output
+  changed_when: false
+  ignore_errors: true
+
+- name: Debian - Copy falcon-sensor package to server
+  get_url:
+    url: "{{ artifactory }}/debian-local/{{ deb_package }}"
+    dest: /tmp/
+    checksum: sha256:6bf31c0a2cb9e66a8e4b17e1be13f11f8d36de67e0d124355d6a9d8ab0c33534
+    validate_certs: false
+  become: yes
+  become_user: root
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or
+        dpkg_output.rc != 0
+
+- name: Ensure dependencies are installed
+  package:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - libnl-3-200
+    - libnl-genl-3-200
+  become: yes
+  become_user: root
+
+- name: Ensure falcon-sensor is installed
+  apt:
+    deb: /tmp/{{ deb_package }}
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or dpkg_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: Ensure CID (Customer ID) is configured
+  command: /opt/CrowdStrike/falconctl -s --cid={{ cid }}
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] is not defined or
+        service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] != "running"
+  become: yes
+  become_user: root
+
+- name: Clean up installation artifact
+  file:
+    path: /tmp/{{ deb_package }}
+    state: absent
+  become: yes
+  become_user: root
+
+- name: Ensure CrowdStrike is on and enabled
+  service:
+    name: falcon-sensor.service
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+...

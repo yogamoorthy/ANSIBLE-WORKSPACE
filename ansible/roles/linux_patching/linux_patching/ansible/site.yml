@@ -1,0 +1,29 @@
+---
+- hosts: all
+  gather_facts: true
+
+- hosts: all
+  gather_facts: false
+  roles:
+    - role: snapshot
+  vars: 
+    input: add
+    snapshot_name: "patching"
+    snapshot_description: "before patching"
+
+- hosts: all
+  gather_facts: false
+  vars:
+    downtime_duration: 90
+    comment: "patching"
+  roles:
+    - role: downtime
+
+- hosts: all
+  serial: 1
+  gather_facts: false
+  roles:
+    - role: linux_patching
+  become_user: root
+  become: true
+...

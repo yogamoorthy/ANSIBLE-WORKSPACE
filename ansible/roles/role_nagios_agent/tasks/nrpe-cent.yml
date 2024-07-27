@@ -1,0 +1,105 @@
+---
+- name: ensure a list of packages installed
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+    - nrpe
+    - nagios-common
+    - nagios-plugins-all
+  become: yes
+
+- name: Create nrpe config and set permissions
+  file:
+    path: "{{ item.path }}"
+    owner: "{{ item.owner }}"
+    group: "{{ item.group }}"
+    mode: "{{ item.mode }}"
+    state: touch
+  loop:
+    - path: /etc/nagios/nrpe.cfg
+      owner: nagios
+      group: root
+      mode: "0644"
+    - path: /var/log/nrpe.log
+      owner: nagios
+      group: nagios
+      mode: "0644"
+  become: yes
+  when: ansible_distribution == 'CentOS'
+
+- name: Plugging nrpe.cfg something good
+  copy:
+    src: rhel-nrpe.cfg
+    dest: /etc/nagios/nrpe.cfg
+    owner: nrpe
+    group: nrpe
+    mode: '0644'
+  
+- name: example copying file with owner and permissions
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - src: check_mem
+      dest: /usr/lib64/nagios/plugins/check_mem
+    - src: check_cpu_stats.sh
+      dest: /usr/lib64/nagios/plugins/check_cpu_stats.sh
+    - src: check_wms_tran_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_tran_log.sh
+    - src: check_wms_ship_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_ship_log.sh
+    - src: check_ping_latency.sh
+      dest: /usr/lib64/nagios/plugins/check_ping_latency.sh
+    - src: check_wms_pix_log.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_pix_log.sh
+    - src: check_wms_cig1.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_cig1.sh
+    - src: check_wms_phrmtote.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_phrmtote.sh
+    - src: check_wms_taxright.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_taxright.sh
+    - src: check_wms_wavecube.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_wavecube.sh
+    - src: check_wms_service.sh
+      dest: /usr/lib64/nagios/plugins/check_wms_service.sh
+    - src: check_mounts.sh
+      dest: /usr/lib64/nagios/plugins/check_mounts.sh
+  become: yes
+
+- name: copying nrpe fix script
+  copy:
+    src: nrpe_fixer.sh
+    dest: /opt/hy-vee/scripts/nrpe_fixer.sh
+    owner: root
+    group: root
+    mode: "0754"
+
+- name: Ensure cron for nrpe fix script is configured
+  cron:
+    name: "ensure nrpe pid dir exists and nrpe is running"
+    user: root
+    minute: "*/10"
+    job: "/opt/hy-vee/scripts/nrpe_fixer.sh"
+
+- name: Enable and Restart NRPE Agent
+  systemd:
+    state: restarted
+    enabled: yes
+    name: nrpe
+  become: yes
+
+- name: Is IP Tables Running
+  command: systemctl is-active iptables.service
+  become: yes
+  register: iptables_status
+  ignore_errors: true
+  notify:
+    - Import IPtables Rule NRPE
+    - Save IPtables
+    - Reload IPtables
+...

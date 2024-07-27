@@ -1,0 +1,49 @@
+---
+- name: Create a snapshot in WDM Datacenter
+  vmware_guest_snapshot:
+    hostname: wdm-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: wdm
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: present
+    snapshot_name: "{{ snapshot_name }}"
+    description: "{{ snapshot_description }}"
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_wdm.folders is defined
+
+- name: Create a snapshot in Corporate Datacenter
+  vmware_guest_snapshot:
+    hostname: corpvcenter-v.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: corporate
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: present
+    snapshot_name: "{{ snapshot_name }}"
+    description: "{{ snapshot_description }}"
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_corp.folders is defined
+
+- name: Create a snapshot in Chaska Datacenter
+  vmware_guest_snapshot:
+    hostname: cha-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: cha
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    state: present
+    snapshot_name: "{{ snapshot_name }}"
+    description: "{{ snapshot_description }}"
+    validate_certs: no
+  delegate_to: localhost
+  become: False
+  when: vm_info_cha.folders is defined
+...

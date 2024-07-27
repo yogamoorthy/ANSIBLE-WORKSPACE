@@ -1,0 +1,255 @@
+[dev:children]
+crowd_dev
+confluence_dev
+jira_dev
+everseen_dev
+gk_dev
+nagios_dev
+wms_dev
+splunk_dev
+ubiquity_dev
+scjobs_dev
+s2badge_dev
+
+#---
+# Atlassian Environment
+#---
+[crowd_dev]
+; dlwdmatlcrd1 ansible_host=10.200.66.14 ansible_ssh_user=sysadmin # NEEDS TO BE FIXED FOR PATCHING
+; dlwdmatlcrd2 ansible_host=10.134.26.19 ansible_ssh_user=sysadmin # NEEDS TO BE FIXED FOR PATCHING
+crowdtest1-v ansible_host=10.200.64.115 ansible_ssh_user=sysadmin
+
+[confluence_dev:children]
+confluence_dev_app
+confluence_dev_nfs
+
+[confluence_dev_app]
+conflutest-v
+conflutest2-v
+
+[confluence_dev_nfs]
+conflutestnfs-v
+
+[jira_dev:children]
+jira_dev_app
+jira_dev_nfs
+
+[jira_dev_app]
+jiratest1-v
+
+[jira_dev_nfs]
+jiratestnfs1-v
+
+#---
+# Everseen DEV 
+#---
+[everseen_dev]
+8855es1
+
+#---
+# GK Environment
+#---
+[gk_dev:children]
+gk_dev_app
+gk_dev_db
+
+[gk_dev_app:children]
+gk_dev_mgr
+gk_dev_sdc
+gk_dev_pos
+gk_dev_csrv
+gk_dev_webpos
+
+[gk_dev_mgr]
+gkdevmgr1-v ansible_host=10.134.0.70
+
+[gk_dev_sdc]
+gkdevsdc1-v ansible_host=10.134.0.71
+gkdevsdc2-v ansible_host=10.134.0.72
+
+[gk_dev_pos]
+gkdevpos1-v ansible_host=10.134.0.73
+gkdevpos2-v ansible_host=10.134.0.74
+
+[gk_dev_csrv]
+gkdevcsrv1-v ansible_host=10.134.0.76
+
+[gk_dev_webpos]
+gkdevwebpos1-v ansible_host=10.134.252.33
+gkdevwebpos2-v ansible_host=10.134.252.34
+
+[gk_dev_db]
+gkdevdb2a-v ansible_host=10.134.0.201
+gkdevdb2b-v ansible_host=10.134.0.202
+
+#---
+# Nagios DEV
+#---
+
+[nagios_dev:children]
+nagios_dev_xi
+
+[nagios_dev_core]
+8855Nagios.hy-vee.net
+
+[nagios_dev_xi]
+nagiosdev1-v ansible_python_interpreter=/usr/bin/python3
+
+#---
+# WMS Environment
+#---
+[wms_dev:children]
+wms_dev_app
+wms_dev_db
+
+[wms_dev_app:children]
+wms_dev_che_app
+wms_dev_chr_app
+wms_dev_ctl_app
+wms_dev_ldc_app
+wms_dev_lmr_app
+wms_dev_pdi_app
+wms_dev_sci_app
+wms_dev_mif_app
+
+[wms_dev_db:children]
+wms_dev_che_db
+wms_dev_chr_db
+wms_dev_ctl_db
+wms_dev_ldc_db
+wms_dev_lmr_db
+wms_dev_pdi_db
+wms_dev_mif_db
+
+# Cherokee Warehouse Servers
+[wms_dev_che:children]
+wms_dev_che_app
+wms_dev_che_db
+
+[wms_dev_che_app]
+chedevapp1-v
+
+[wms_dev_che_db]
+chedevdb1-v
+
+# Chariton Warehouse Servers
+[wms_dev_chr:children]
+wms_dev_chr_app
+wms_dev_chr_db
+
+[wms_dev_chr_app]
+chrdevapp1-v
+
+[wms_dev_chr_db]
+chrdevdb1-v
+
+# Central Warehouse Servers
+[wms_dev_ctl:children]
+wms_dev_ctl_app
+wms_dev_ctl_db
+
+[wms_dev_ctl_app]
+ctldevapp1a-v
+ctldevapp1b-v
+
+[wms_dev_ctl_db]
+ctldevdb2a-v
+ctldevdb2b-v
+
+# LDC Warehouse Servers
+[wms_dev_ldc:children]
+wms_dev_ldc_app
+wms_dev_ldc_db
+
+[wms_dev_ldc_app]
+ldcdevapp1a-v ansible_ssh_user=sysadmin
+ldcdevapp1b-v ansible_ssh_user=sysadmin
+
+[wms_dev_ldc_db]
+ldcdevdb1a-v ansible_ssh_user=sysadmin
+ldcdevdb1b-v ansible_ssh_user=sysadmin
+
+# Lomar Warehouse Servers
+[wms_dev_lmr:children]
+wms_dev_lmr_app
+wms_dev_lmr_db
+
+[wms_dev_lmr_app]
+lmrdevapp1a-v
+lmrdevapp1b-v
+
+[wms_dev_lmr_db]
+lmrdevdb2a-v ansible_host=10.200.85.206
+lmrdevdb2b-v ansible_host=10.200.85.207
+
+# PDI Warehouse Servers
+[wms_dev_pdi:children]
+wms_dev_pdi_app
+wms_dev_pdi_db
+
+[wms_dev_pdi_app]
+pdidevapp1-v
+
+[wms_dev_pdi_db]
+devdb1-v
+
+# SCI Server
+[wms_dev_sci:children]
+wms_dev_sci_app
+
+[wms_dev_sci_app]
+pdidevsci-v ansible_host=10.200.85.87
+
+# MIF Servers
+[wms_dev_mif:children]
+wms_dev_mif_app
+wms_dev_mif_db
+
+[wms_dev_mif_app]
+pdidevapp1-v
+
+[wms_dev_mif_db]
+mifdevdb-v ansible_host=10.200.85.95
+
+# All wms app servers EXCEPT CHR (Chariton)
+# This is used in the linux_scripts Ansible Role
+[wms_no_chr_dev:children]
+wms_dev_che_app
+wms_dev_ctl_app
+wms_dev_ldc_app
+wms_dev_lmr_app
+wms_dev_pdi_app
+
+#---
+# Splunk Environment
+#---
+[splunk_dev]
+dlwdmspkdpl1 ansible_host=10.134.23.178 ansible_ssh_user=sysadmin
+dlchaspkdpl1 ansible_host=10.134.23.179 ansible_ssh_user=sysadmin
+dlwdmspkhvf1 ansible_host=10.134.23.164 ansible_ssh_user=sysadmin
+dlchaspkhvf1 ansible_host=10.134.23.165 ansible_ssh_user=sysadmin
+
+#---
+# NMS Portal (Ubiquity) Environment
+#---
+[ubiquity_dev]
+dlwdmplmapp1 ansible_host=10.200.66.158
+
+#---
+# Order Processing Environment
+#---
+[scjobs_dev]
+scjobsdev-v ansible_host=10.200.65.12
+
+#---
+# S2 Security Badging Environment
+#---
+[s2badge_dev:children]
+s2badge_dev_net
+s2badge_dev_india
+
+[s2badge_dev_net]
+S2netboxdev1-v ansible_host=10.200.66.66
+
+[s2badge_dev_india]
+S2globaldev1-v ansible_host=10.200.65.47 ansible_python_interpreter=/usr/bin/python

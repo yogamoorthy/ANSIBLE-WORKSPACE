@@ -1,0 +1,38 @@
+---
+- name: Copy nagios files from Artifactory
+  win_get_url:
+    url: "{{ artifactory_url }}/{{ win_artifactory_repo }}/nagios.zip"
+    dest: "{{ temp_dir }}"
+  ignore_errors: yes
+- name: Unzip Nagios file
+  win_unzip:
+    names: "Unzip Nagios file"
+    src: "{{ temp_dir }}\\nagios.zip"
+    dest: "{{ temp_dir }}"
+    delete_archive: yes
+  ignore_errors: yes
+- name: Install Nagios agent
+  win_package:
+    names: "Nagios XI Agent"
+    path: "{{ temp_dir }}\\nagios\\NSCP-0.5.2.35-x64.msi"
+    product_id: "{33F14A86-E280-49DD-B3A2-FCD4EEF47F2F}"
+    state: present
+  ignore_errors: yes
+- name: Copy INI file to Nagios agent directory
+  win_copy:
+    src: "{{ temp_dir }}\\nagios\\nsclient.ini"
+    remote_src: yes
+    dest: "C:\\Program Files\\NSClient++\\nsclient.ini"
+  ignore_errors: yes
+- name: Copy scripts folder to Nagios agent directory
+  win_copy:
+    src: "{{ temp_dir }}\\nagios\\scripts\\"
+    remote_src: yes
+    dest: "C:\\Program Files\\NSClient++\\scripts\\"
+  ignore_errors: yes
+- name: Restart Nagios service
+  win_service:
+    name: nscp
+    state: restarted
+  ignore_errors: yes
+...

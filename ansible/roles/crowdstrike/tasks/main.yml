@@ -1,0 +1,16 @@
+---
+- name: Run System Setup
+  import_tasks: setup.yml
+
+- name: Run distribution specific steps
+  import_tasks: "rhel.yml"
+  when: ansible_facts['os_family'] == 'RedHat'
+
+- name: Run distribution specific steps
+  import_tasks: "suse.yml"
+  when: ansible_facts['os_family'] == 'Suse'
+
+- name: Run distribution specific steps
+  import_tasks: "debian.yml"
+  when: ansible_facts['os_family'] == 'Debian'
+...

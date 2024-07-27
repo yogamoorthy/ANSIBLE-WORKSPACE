@@ -1,0 +1,47 @@
+---
+- name: Check if Rapid7 Directory Exists
+  stat: path=/opt/rapid7
+  register: status
+
+- name: Create Temp Directory
+  file:
+    path: /opt/tmp
+    state: directory
+    mode: '0755'
+  become: yes
+  become_user: root
+  when: status.stat.exists == false
+
+- name: Download Rapid7 Agent
+  get_url:
+    url: "{{ artifactory }}/systems-linux-team-local/{{ r7_agent }}"
+    dest: /opt/tmp/
+    checksum: sha256:00c71ea475e0fb5fd6ca2f7f5b595645fdf4ba000e027a001fde72083335280b
+    validate_certs: false
+  become: yes
+  become_user: root
+  when: status.stat.exists == false
+
+- name: Set Permissions
+  file:
+    path: /opt/tmp/{{ r7_agent }}
+    owner: root
+    group: root
+    mode: '0755'
+  become: yes
+  become_user: root
+  when: status.stat.exists == false
+
+- name: Run the Installer Script
+  shell: /opt/tmp/{{ r7_agent }} install_start --token {{ r7_token }}
+  become: yes
+  become_user: root
+  when: status.stat.exists == false
+
+- name: Remove Temp Directory
+  file:
+    path: /opt/tmp
+    state: absent
+  become: yes
+  become_user: root
+...

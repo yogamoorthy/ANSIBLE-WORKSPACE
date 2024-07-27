@@ -1,0 +1,5 @@
+Defaults:nrpe      !requiretty
+nrpe ALL=(scopeadm) NOPASSWD:/bin/sh -lc /opt/hy-vee/scripts/app status, /etc/alternatives/jps, /etc/alternatives/jstat
+nrpe ALL=(wmsadmin) NOPASSWD:/bin/sh -lc /opt/hy-vee/scripts/app status, /etc/alternatives/jps, /etc/alternatives/jstat
+nrpe ALL=(root) NOPASSWD:/usr/lib64/nagios/plugins/check_mounts.sh *
+nrpe ALL=(root) NOPASSWD:/usr/lib64/nagios/plugins/check_asm.sh

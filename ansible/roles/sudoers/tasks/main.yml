@@ -1,0 +1,58 @@
+---
+- name: Deploy sysadmin sudoers template
+  template:
+    src: sysadmin.j2
+    dest: /etc/sudoers.d/sysadmin
+    owner: root
+    group: root
+    mode: 0640
+
+
+- name: Deploy ansible sudoers template
+  template:
+    src: ansible.j2
+    dest: /etc/sudoers.d/ansible
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Deploy linux-admins sudoers template
+  template:
+    src: linux-admins.j2
+    dest: /etc/sudoers.d/linux-admins
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Deploy networkadmins sudoers template
+  template:
+    src: networkadmins.j2
+    dest: /etc/sudoers.d/networkadmins
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Deploy concourse sudoers template
+  template:
+    src: concourse.j2
+    dest: /etc/sudoers.d/concourse
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Deploy jenkins sudoers template
+  template:
+    src: jenkins.j2
+    dest: /etc/sudoers.d/jenkins
+    owner: root
+    group: root
+    mode: 0640
+
+- name: Deploy sudoers default template
+  template:
+    src: sudoers.j2
+    dest: /etc/sudoers
+    owner: root
+    group: root
+    mode: 0440
+...

@@ -1,0 +1,246 @@
+#!/bin/bash
+
+server=$(hostname -f)
+
+# Color Variables
+red='\033[0;31m'
+green='\033[0;32m'
+lightgreen='\033[1;32m'
+yellow='\033[1;33m'
+nc='\033[0m'
+
+display_help() {
+    echo
+    echo "Usage: $0 [option...]" >&2
+    echo
+    echo "   status           Show State of a cluster"
+    echo "   start            Presents a list of Clusters then Hosts which can be started"
+    echo "   disable          Presents a list of Clusters then Hosts which can be disabled"
+    echo "                          Disable a host to drain connections before stopping"
+    echo "   stop             Presents a list of Clusters then Hosts which can be stopped"
+    echo
+    exit 1
+}
+
+log_info() {
+    timestamp=$(date +'%D_%H:%M:%S:%3N')
+    log_info="$timestamp | INFO:"
+    echo "$log_info"
+}
+
+#------ Dynamic Case List Functions ----------------------------------------------------------------------------------------#
+# -- How to use:
+# -- 1. Create a function specific to your task. ie...
+# --   a. NOTE: This will be your top level function.
+# --   get_cluster_data() { ... }
+# -- 2. Now Create two more functions.
+# --   a. First Function - a Gather Data Function. The output needs to be a  new line list. ie...
+# --     random_path=1
+# --     random_item=2
+# --     random_data=3
+# --   b. Second Function - a format data Function. The output needs to be a  new line list. ie...
+# --       with this fuction you will format the data from the First function to create a list.
+# --     item1
+# --     item2
+# --     item3
+# -- 3. Start the 'dynamic_list' function and feed it your two functions.
+# --     dynamic_list will utilize the 'fmt_data' function by utilizing the
+# --     two functions you created as function args.
+# -- 4. The console output will look like the following.
+#--       1) item1
+#--       2) item2
+#--       3) item3
+#--       #?
+
+fmt_data() {
+    # Formats the Status Data
+    $1
+    $2
+}
+
+dynamic_list() {
+    # Formats all of the apps in a list that is used to start, stop, reload, and undeploy apps.
+    fmt_data $1 $2
+    readarray -t lines < <(echo "$input")
+    echo "Please select an Option:"
+    select choice in "${lines[@]}"; do
+      [[ -n $choice ]] || { echo "Invalid choice. Please try again." >&2; continue; }
+      break
+    done
+    read -r dylist_choice <<<"$choice"
+    # echo "$dylist_choice"
+}
+
+#------ Cluster Data Functions ---------------------------------------------------------------------------------------------#
+get_cluster_data() {
+    dynamic_list get_global_data fmt_global_data
+    data=$(curl "https://${server}:8443/jkmanager/*?cmd=show&w=${dylist_choice}&mime=prop" -s)
+    cluster_name="$dylist_choice"
+}
+
+get_global_data() {
+    data=$(curl "https://${server}:8443/jkmanager/*?mime=prop" -s)
+}
+
+fmt_global_data() {
+    input=$(echo "$data" | grep 'worker.list' | awk -F=  '{ print $2 }')
+}
+
+#------ Get Cluster Data Functions -----------------------------------------------------------------------------------------#
+apachectl_gather() {
+    #---------------------------------------------------------
+    #-- Apache Status Stats
+    #---------------------------------------------------------
+    apachectl_current_connections=$(sudo -u root apachectl fullstatus | egrep -e '^[0-9]|^Srv' | grep -v 'localhost' | tail -n +3 | awk '{ print $11 }' | wc -l)
+    apachectl_processing_requests=$(sudo -u root apachectl fullstatus | grep 'idle workers' | awk -F, '{ print $1 }' | awk '{ print $1 }')
+    apachectl_idle_workers=$(sudo -u root apachectl fullstatus | grep 'idle workers' | awk -F, '{ print $2 }' | awk '{ print $1 }')
+    apachectl_requests_averages=$(sudo -u root apachectl fullstatus | grep 'requests/sec')
+    apachectl_uptime=$(sudo -u root apachectl fullstatus | grep 'uptime' | awk -F: '{ print $2 }')
+
+
+
+
+    echo -e "${yellow}$(log_info) [ ----------------- Apache Status  ----------------------- ]${nc}"
+    echo -e "${lightgreen}$(log_info) Current Uptime = $apachectl_uptime${nc}"
+    echo -e "${lightgreen}$(log_info) Current Connections = $apachectl_current_connections${nc}"
+    echo -e "${lightgreen}$(log_info) Processing Requests = $((apachectl_processing_requests-1))${nc}"
+    echo -e "${lightgreen}$(log_info) Idle Workers = $apachectl_idle_workers${nc}"
+    echo -e "${lightgreen}$(log_info) Apache Averages = $apachectl_requests_averages${nc}"
+
+
+ }
+post_host_data() {
+    #------ Build Dataset "data" and "cluster_name" ------------------------------------------------------------------------#
+    #-- data = a subset of properties about the chosen cluster
+    #-- cluster_name = the cluster that was chosen at the tui prompt
+    #---------------------------------------------------------
+    # get_cluster_data
+    master_data=$(curl "https://${server}:8443/jkmanager/*?mime=prop" -s)
+    input=$(echo "$master_data" | grep 'worker.list' | awk -F=  '{ print $2 }')
+    echo "$master_data" > dataset.properties
+    apachectl_gather
+
+    for cluster_index in $input;
+      do
+        #---------------------------------------------------------
+        #-- cluster_name = the cluster that was chosen at the tui prompt
+        #---------------------------------------------------------
+        cluster_data=$(curl "https://${server}:8443/jkmanager/*?cmd=show&w=${cluster_index}&mime=prop" -s)
+        c_map_count=$(echo "$cluster_data" | grep "worker.$cluster_index.map_count" | awk -F=  '{ print $2 }')
+        c_worker=$(echo "$cluster_data" | grep "worker.server_name" | awk -F=  '{ print $2 }')
+        host_application_port=$(echo "$cluster_data" | grep worker.server_port | awk -F=  '{ print $2 }')
+        host_list=$(echo "$cluster_data" | grep "worker.$cluster_index.balance_workers" | awk -F=  '{ print $2 }')
+
+        echo -e "${yellow}$(log_info) [ ----------------- $cluster_index ----------------------------- ]${nc}"
+        #---------------------------------------------------------
+        #-- cluster_name = the cluster that was chosen at the tui prompt
+        #---------------------------------------------------------
+        for map_index in $(seq $c_map_count);
+          do
+            #TODO: Need a Healthcheck for this URL Call...
+            c_map_uri=$(echo "$cluster_data" | grep worker.$cluster_index.map.$map_index.uri | awk -F=  '{ print $2 }')
+            echo -e "${lightgreen}$(log_info) [https://$c_worker:$host_application_port$c_map_uri] URI - Test Message${nc}"
+        done
+        #---------------------------------------------------------
+        #-- cluster_name = the cluster that was chosen at the tui prompt
+        #---------------------------------------------------------
+        for host_index in $host_list;
+          do
+            h_hostname=$(echo "$cluster_data" | grep $host_index | grep worker.$host_index.host | awk -F=  '{ print $2 }')
+            host_activation=$(echo "$cluster_data" | grep $host_index | grep worker.$host_index.activation | awk -F=  '{ print $2 }')
+            h_state=$(echo "$cluster_data" | grep $host_index | grep worker.$host_index.state | awk -F=  '{ print $2 }')
+            h_sessions=$(echo "$cluster_data" | grep $host_index | grep worker.$host_index.sessions | awk -F=  '{ print $2 }')
+
+            # echo -e "${red}$(log_info) host - $host_index${nc}"
+            # echo -e "${red}$(log_info) Hostname - $h_hostname${nc}"
+            # echo -e "${red}$(log_info) ACT - $host_activation${nc}"
+            # echo -e "${red}$(log_info) State - $h_state${nc}"
+            # echo -e "${red}$(log_info) Session - $h_sessions${nc}"
+
+            if [ "$host_activation" == "ACT" ];
+              then
+                echo -e "${green}$(log_info) [$h_hostname] Action - $host_activation${nc}"
+                echo -e "${green}$(log_info) [$h_hostname] Status - $h_state${nc}"
+                echo -e "${green}$(log_info) [$h_hostname] Total Connections - $h_sessions${nc}"
+            elif [ "$host_activation" == "DIS" ];
+              then
+                echo -e "${yellow}$(log_info) [$h_hostname] Action - $host_activation${nc}"
+                echo -e "${yellow}$(log_info) [$h_hostname] Status - $h_state${nc}"
+                echo -e "${yellow}$(log_info) [$h_hostname] Total Connections - $h_sessions${nc}"
+            elif [ "$host_activation" == "STP" ];
+              then
+                echo -e "${red}$(log_info) [$h_hostname] Action - $host_activation${nc}"
+                echo -e "${red}$(log_info) [$h_hostname] Status - $h_state${nc}"
+                echo -e "${red}$(log_info) [$h_hostname] Total Connections - $h_sessions${nc}"
+            fi
+        done
+    done
+}
+
+#------ Get Host Data ------------------------------------------------------------------------------------------------------#
+get_host_data() {
+    dynamic_list get_cluster_data fmt_host_data
+    h_name="$dylist_choice"
+}
+
+fmt_host_data() {
+    input=$(echo "$data" | grep worker.$dylist_choice.balance_workers | awk -F=  '{ print $2 }')
+}
+
+post_host_act() {
+    get_host_data
+    host_list=$(echo "$data" | grep "worker.$cluster_name.balance_workers")
+    host_activation=$(echo "$data" | grep activation)
+    hosts=$(echo "$host_list" | wc -l)
+    count="1"
+    call_str=""
+    for index in $(seq 0 $(( $hosts - 1)) );
+      do
+        #------ Set the dependent vars -------------------------------------------------------------------------------------#
+        item_n=$(echo "$host_list" | sed "${count}q;d")
+        state_n=$(echo "$host_activation" | sed "${count}q;d" | awk -F= '{ print $2 }' )
+        host_n=$(echo "$host_activation" | sed "${count}q;d" | awk -F. '{ print $2 }')
+        #------ Set the Reuested state for the filtered host ---------------------------------------------------------------#
+        if [ "$host_n" == "$h_name" ];
+          then
+            state_n="$1"
+        fi
+        #------ Apply the State to all hosts - pull the current state and applies ------------------------------------------#
+        if [ "$state_n" == "ACT" ];
+          then
+            state_n="0"
+        elif [ "$state_n" == "DIS" ];
+          then
+            state_n="1"
+        elif [ "$state_n" == "STP" ];
+          then
+            state_n="2"
+        fi
+        #------ Concatanate the new String onto the exsisting --------------------------------------------------------------#
+        call_str="$call_str&val$index=$state_n"
+        ((count++))
+    done
+    curl "https://${server}:8443/jkmanager/*?cmd=update&w=$cluster_name&from=list&att=vwa&$call_str" &>/dev/null
+}
+
+#------ Options ------------------------------------------------------------------------------------------------------------#
+case "$1" in
+    status)
+        post_host_data
+        ;;
+
+    start)
+        post_host_act ACT
+        ;;
+
+    disable)
+        post_host_act DIS
+        ;;
+
+    stop)
+        post_host_act STP
+        ;;
+
+    *)
+        display_help
+esac

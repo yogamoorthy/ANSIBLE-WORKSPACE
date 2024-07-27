@@ -1,0 +1,58 @@
+---
+- name: Install Nagios Packages
+  apt:
+    name: ['nagios-nrpe-server', 'nagios-plugins-basic', 'nagios-plugins-contrib', 'sysstat']
+
+- name: Create nrpe config and set permissions
+  file:
+    path: /etc/nagios/nrpe.cfg
+    owner: nagios
+    group: root
+    mode: "0644"
+
+- name: Echo in nrpe config
+  shell: |
+    echo '
+
+    log_facility=daemon
+    debug=0
+    pid_file=/var/run/nagios/nrpe.pid
+    server_port=5666
+    nrpe_user=nagios
+    nrpe_group=nagios
+    allowed_hosts=10.200.64.141,127.0.0.1,10.200.64.140
+    dont_blame_nrpe=1
+    allow_bash_command_substitution=0
+    command_timeout=60
+    connection_timeout=300
+    include_dir=/etc/nagios/nrpe.d/
+
+    command[check_disk]=/usr/lib/nagios/plugins/check_disk $ARG1$
+    command[check_tcp]=/usr/lib/nagios/plugins/check_tcp $ARG1$
+    command[check_cpu_stats]=/usr/lib/nagios/plugins/check_cpu_stats.sh $ARG1$
+    command[check_procs]=/usr/lib/nagios/plugins/check_procs $ARG1$
+    command[check_users]=/usr/lib/nagios/plugins/check_users $ARG1$
+    command[check_load]=/usr/lib/nagios/plugins/check_load $ARG1$
+    command[check_swap]=/usr/lib/nagios/plugins/check_swap $ARG1$
+    command[check_updates]=/usr/lib/nagios/plugins/check_updates $ARG1$
+    command[check_mem]=/usr/lib/nagios/plugins/check_mem $ARG1$' > /etc/nagios/nrpe.cfg
+
+- name: Ensure Plugins Exist
+  copy:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: "0755"
+  loop:
+    - src: check_mem
+      dest: /usr/lib/nagios/plugins/check_mem
+    - src: check_debian_cpu_stats.sh
+      dest: /usr/lib/nagios/plugins/check_cpu_stats.sh
+
+- name: Enable and Restart NRPE Agent
+  systemd:
+    name: nagios-nrpe-server.service
+    state: restarted
+    enabled: yes
+...

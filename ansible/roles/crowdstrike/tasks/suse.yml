@@ -1,0 +1,60 @@
+---
+- name: Check if proper version of crowdstrike is installed
+  shell: "rpm -qa | grep falcon-sensor"
+  register: rpm_output
+  changed_when: false
+  ignore_errors: true
+  
+- name: SUSE/SLES - Copy falcon-sensor package to server
+  get_url:
+    url: "{{ artifactory }}/systems-linux-team-local/{{ suse_package }}"
+    dest: /tmp/
+    checksum: sha256:5c7eaff5484df666e55c422d2c8003b1b3db9d2cda7cd79c4f57a4865069f597
+  become: yes
+  become_user: root
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or
+        rpm_output.rc != 0
+
+- name: Copy GPG Key to Server
+  copy:
+    src: files/key.gpg
+    dest: /tmp/fskey.gpg
+    mode: 0644
+
+- name: Import GPG Key
+  rpm_key:
+    state: present
+    key: /tmp/fskey.gpg
+  become: yes
+  become_user: root
+
+- name: Ensure falcon-sensor is installed
+  package:
+    name: /tmp/{{ suse_package }}
+    state: latest
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"] is not defined or rpm_output.rc != 0
+  become: yes
+  become_user: root
+
+- name: Ensure CID (Customer ID) is configured
+  command: /opt/CrowdStrike/falconctl -s --cid={{ cid }}
+  when: service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] is not defined or
+        service_facts["ansible_facts"]["services"]["falcon-sensor.service"]["state"] != "running"
+  become: yes
+  become_user: root
+
+- name: Clean up installation artifact
+  file:
+    path: /tmp/{{ suse_package }}
+    state: absent
+  become: yes
+  become_user: root
+
+- name: Ensure CrowdStrike is on and enabled
+  service:
+    name: falcon-sensor.service
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+...

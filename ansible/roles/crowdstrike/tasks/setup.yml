@@ -1,0 +1,13 @@
+---
+- name: Ensure xagt(fireeye) is uninstalled
+  package:
+    name: xagt
+    state: absent
+  become: yes
+  become_user: root
+
+- name: Pull state of all services
+  service_facts:
+  register: service_facts
+  changed_when: false
+...

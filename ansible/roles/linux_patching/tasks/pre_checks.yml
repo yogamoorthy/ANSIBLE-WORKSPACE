@@ -1,0 +1,43 @@
+---
+- name: Precheck - Grab the total,Used and Avail size of /boot filesystem
+  shell: df -hP /boot | grep -iv "filesystem" | awk '{ print $2,$3,$4 }'
+  register: boot
+  become: yes
+
+- name: Precheck - Grab the Total,Used and Avail size of /tmp filesystem
+  shell:  df -hP /tmp | grep -iv "filesystem" | awk '{ print $2,$3,$4 }'
+  register: tmp
+  become: yes
+
+- name: Precheck - Grab the Avail Space of /boot filesystem in megabytes
+  shell: df -m /boot --output\=avail | grep -iv "Avail"
+  register: boot_availspace
+  become: yes
+
+- name: Precheck - Grab the Uptime report
+  shell: uptime | cut -d ',' -f1 | awk '{print $2,$3,$4}'
+  register: uptime
+  become: yes
+
+- name: Precheck - Build out CSV content
+  set_fact:
+    dev_info: "{{ ansible_hostname }},{{ ansible_default_ipv4.address }},{{ ansible_kernel }},{{ boot.stdout }},{{ tmp.stdout }},{{ boot_availspace.stdout }},{{ uptime.stdout }}"
+  become: yes 
+
+- name: Precheck - Generate CSV file
+  template: 
+    src: templates/pre_upgrade.txt.j2 
+    dest: "{{ csv_path }}/pre_checks.csv"
+
+- name: Precheck - Send Email
+  mail:
+    host: "{{ email_host }}"
+    from: "{{ email_from }}"
+    port: 25
+    to: "{{ email_to }}"
+    subject: "[Ansible] *Precheck Report*"
+    body: "{{ lookup('template', 'templates/pre_report.html.j2', errors='ignore') }}"
+    attach: "{{ csv_path }}/pre_checks.csv"
+    subtype: html
+  run_once: true
+...

@@ -1,0 +1,7 @@
+---
+application: 
+    - activemq
+    - smserver
+    - smhybridinfoserver
+    - smufs
+...

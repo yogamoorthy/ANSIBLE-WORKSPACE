@@ -1,0 +1,64 @@
+---
+- name: Download Scan Assistant for RHEL/SUSE
+  get_url:
+    url: https://artifactory.prod.hy-vee.cloud/artifactory/systems-linux-team-local/{{ rpm_package }}
+    dest: /tmp/
+    checksum: sha256:055a8f79b1f92de5e224a7ebb5116c218dc4467ad4aba5168027c5c1fb09fb5b
+    validate_certs: false
+  when: service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+  become: yes
+  become_user: root
+  ignore_errors: True
+  register: download_status
+
+- name: Transfer Package to Server if Artifactory Download Fails
+  copy: 
+    src: "{{ rpm_package }}"
+    dest: /tmp/{{ rpm_package }}
+    owner: root
+    group: root
+    mode: '0640'
+  when: 
+    - service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+    - download_status.changed == False
+  become: yes
+  become_user: root
+
+- name: Install Scan Assistant for RHEL
+  package:
+    name: /tmp/{{ rpm_package }}
+    state: present
+  when: 
+    - service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+    - ansible_facts['os_family'] == 'RedHat'
+  become: yes
+  become_user: root
+  
+- name: Install Scan Assistant for SUSE
+  shell:
+    cmd: rpm -i /tmp/{{ rpm_package }}
+  when: 
+    - service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+    - ansible_facts['os_family'] == 'Suse'
+  become: yes
+  become_user: root
+
+- name: Deploy config
+  template:
+    src: templates/rpm-config.json.j2
+    dest: /etc/rapid7/ScanAssistant/config.json
+    owner: root
+    group: root
+    mode: '0644'
+  when: service_facts["ansible_facts"]["services"]["R7ScanAssistant.service"] is not defined
+  become: yes
+  become_user: root
+
+- name: Ensure Scan Assistant is on and enabled
+  service:
+    name: R7ScanAssistant.service
+    state: started
+    enabled: true
+  become: yes
+  become_user: root
+...

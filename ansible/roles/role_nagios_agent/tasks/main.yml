@@ -1,0 +1,25 @@
+---
+- name: Run RHEL Tasks
+  import_tasks: nrpe-rhel.yml
+  when: ansible_distribution == 'RedHat'
+
+- name: Run CentOS Tasks
+  import_tasks: nrpe-cent.yml
+  when: ansible_distribution == 'CentOS'
+
+- name: Run Rocky Tasks
+  import_tasks: nrpe-rocky.yml
+  when: ansible_distribution == 'Rocky'
+
+- name: Run Debian Tasks
+  import_tasks: nrpe-deb.yml
+  when: ansible_facts['os_family'] == "Debian"
+  
+- name: Run Suse Tasks
+  import_tasks: nrpe-suse.yml
+  when: ansible_facts['os_family'] == "Suse"
+
+- name: Run Windows Tasks 
+  import_tasks: nscp-win.yml
+  when: ansible_facts['os_family'] == "Windows"
+...

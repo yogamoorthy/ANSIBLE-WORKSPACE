@@ -1,0 +1,438 @@
+[prod:children]
+ansible_prod
+crowd_prod
+confluence_prod
+jira_prod
+gk_prod
+wms_prod
+splunk_prod
+nagios_prod
+rapid7_prod
+jenkins_prod
+satellite_prod
+smt_prod
+graphite_prod
+dbmgmt_prod
+nxlog_prod
+syniti_prod
+ubiquity_prod
+scjobs_prod
+dell_prod
+s2badge_prod
+
+[ansible_prod]
+ansible ansible_host=10.200.64.40
+
+#---
+# Atlassian Environment
+#---
+[crowd_prod]
+corpcrowd1-v ansible_host=10.200.64.120 ansible_ssh_user=sysadmin
+plcrowd1 ansible_host=10.134.64.214 ansible_ssh_user=sysadmin
+
+[confluence_prod:children]
+confluence_prod_app
+confluence_prod_nfs
+
+[confluence_prod_app]
+corpconflu1-v
+corpconflu2-v
+
+[confluence_prod_nfs]
+plconflunfs1 ansible_host=10.134.64.218
+
+[jira_prod:children]
+jira_prod_app
+jira_prod_nfs
+
+[jira_prod_app]
+corpjira1-v
+
+[jira_prod_nfs]
+jiranfs1-v
+
+#---
+# GK Environment
+#---
+[gk_prod:children]
+gk_prod_app
+gk_prod_db
+
+[gk_prod_app:children]
+gk_prod_mgr
+gk_prod_sdc
+gk_prod_pos
+gk_prod_csrv
+gk_prod_webpos
+
+[gk_prod_mgr]
+gkprodmgr1-v ansible_host=10.134.2.70
+
+[gk_prod_sdc]
+gkprodsdc1-v ansible_host=10.134.2.71
+gkprodsdc2-v ansible_host=10.134.2.72
+gkprodsdc3-v ansible_host=10.134.2.81
+gkprodsdc4-v ansible_host=10.134.2.82
+gkprodsdc5-v ansible_host=10.134.2.85
+
+[gk_prod_pos]
+gkprodpos1-v ansible_host=10.134.2.73
+gkprodpos2-v ansible_host=10.134.2.74
+gkprodpos3-v ansible_host=10.134.2.83
+gkprodpos4-v ansible_host=10.134.2.84
+gkprodpos5-v ansible_host=10.134.2.86
+
+[gk_prod_csrv]
+gkprodcsrv1-v ansible_host=10.134.2.76
+
+[gk_prod_webpos]
+gkprodwebpos1-v ansible_host=10.134.252.35
+gkprodwebpos2-v ansible_host=10.134.252.36
+
+[gk_prod_db]
+gkproddb2a-v ansible_host=10.134.2.202
+gkproddb2b-v ansible_host=10.134.2.203
+
+#---
+# Nagios XI
+#---
+[nagios_prod:children]
+nagios_prod_xi
+nagios_prod_fusion
+; nagios_prod_amber # NEED TO FIX FOR PATCHING
+
+[nagios_prod_xi]
+nagiosprod1-v ansible_python_interpreter=/usr/bin/python3
+plnagios1 ansible_host=10.134.64.204
+
+[nagios_prod_fusion]
+plwdmnagfus01 ansible_host=10.200.65.15
+
+[nagios_prod_amber]
+ambrwdmnagios
+amb_plnagioscore1 ansible_host=10.136.66.10
+
+#---
+# WMS Environment
+#---
+[wms_prod:children]
+wms_prod_app
+wms_prod_db
+
+[wms_prod_app:children]
+wms_prod_che_app
+wms_prod_chr_app
+wms_prod_ctl_app
+wms_prod_ldc_app
+wms_prod_lmr_app
+wms_prod_pdi_app
+wms_prod_sci_app
+wms_prod_mif_app
+
+[wms_prod_db:children]
+wms_prod_ctl_db
+wms_prod_ctl_db_dr
+wms_prod_che_db
+wms_prod_che_db_dr
+wms_prod_chr_db
+wms_prod_chr_db_dr
+wms_prod_ldc_db
+wms_prod_ldc_db_dr
+wms_prod_lmr_db
+wms_prod_lmr_db_dr
+wms_prod_pdi_db
+wms_prod_pdi_db_dr
+
+# Cherokee Warehouse Servers
+[wms_prod_che:children]
+wms_prod_che_app
+wms_prod_che_db
+wms_prod_che_db_dr
+
+[wms_prod_che_app]
+cheapp1a-v ansible_ssh_user=sysadmin
+cheapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_che_db]
+chedb1a-v ansible_host=10.200.85.184 ansible_ssh_user=sysadmin
+chedb1b-v ansible_host=10.200.85.185 ansible_ssh_user=sysadmin
+
+[wms_prod_che_db_dr]
+chedb1c-v ansible_host=10.200.85.102 ansible_ssh_user=sysadmin
+
+# Chariton Warehouse Servers
+[wms_prod_chr:children]
+wms_prod_chr_app
+wms_prod_chr_db
+wms_prod_chr_db_dr
+
+[wms_prod_chr_app]
+chrapp1a-v ansible_ssh_user=sysadmin
+chrapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_chr_db]
+chrdb1a-v ansible_host=10.200.85.191 ansible_ssh_user=sysadmin
+chrdb1b-v ansible_host=10.200.85.192 ansible_ssh_user=sysadmin
+
+[wms_prod_chr_db_dr]
+chrdb1c-v ansible_host=10.200.85.104 ansible_ssh_user=sysadmin
+
+# Central Warehouse Servers
+[wms_prod_ctl:children]
+wms_prod_ctl_app
+wms_prod_ctl_db
+wms_prod_ctl_db_dr
+
+[wms_prod_ctl_app]
+ctlapp1a-v ansible_ssh_user=sysadmin
+ctlapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_ctl_db]
+ctldb2a-v ansible_ssh_user=sysadmin
+ctldb2b-v ansible_ssh_user=sysadmin
+
+[wms_prod_ctl_db_dr]
+ctldb2c-v ansible_host=10.200.85.112 ansible_ssh_user=sysadmin
+
+# LDC Warehouse Servers
+[wms_prod_ldc:children]
+wms_prod_ldc_app
+wms_prod_ldc_db
+wms_prod_ldc_db_dr
+
+[wms_prod_ldc_app]
+ldcapp1a-v ansible_ssh_user=sysadmin
+ldcapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_ldc_db]
+ldcdb1a-v ansible_ssh_user=sysadmin
+ldcdb1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_ldc_db_dr]
+ldcdb1c-v ansible_host=10.134.64.114 ansible_ssh_user=sysadmin
+
+# Lomar Warehouse Servers
+[wms_prod_lmr:children]
+wms_prod_lmr_app
+wms_prod_lmr_db
+wms_prod_lmr_db_dr
+
+[wms_prod_lmr_app]
+lmrapp1a-v ansible_ssh_user=sysadmin
+lmrapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_lmr_db]
+lmrdb2a-v ansible_ssh_user=sysadmin
+lmrdb2b-v ansible_ssh_user=sysadmin
+
+[wms_prod_lmr_db_dr]
+lmrdb2c-v ansible_ssh_user=sysadmin
+
+# PDI Warehouse Servers
+[wms_prod_pdi:children]
+wms_prod_pdi_app
+wms_prod_pdi_db
+wms_prod_pdi_db_dr
+
+[wms_prod_pdi_app]
+pdiapp1a-v ansible_ssh_user=sysadmin
+pdiapp1b-v ansible_ssh_user=sysadmin
+
+[wms_prod_pdi_db]
+pdidb1a-v ansible_host=10.200.85.198 ansible_ssh_user=sysadmin
+pdidb1b-v ansible_host=10.200.85.199 ansible_ssh_user=sysadmin
+
+[wms_prod_pdi_db_dr]
+pdidb1c-v ansible_host=10.200.85.103 ansible_ssh_user=sysadmin
+
+# SCI Server
+[wms_prod_sci:children]
+wms_prod_sci_app
+
+[wms_prod_sci_app]
+scicognos1-v ansible_ssh_user=sysadmin
+
+# MIF Servers
+[wms_prod_mif:children]
+wms_prod_mif_app
+
+[wms_prod_mif_app]
+rhelmif1a-v ansible_ssh_user=sysadmin
+rhelmif1b-v ansible_ssh_user=sysadmin
+
+# All wms app servers EXCEPT CHR (Chariton)
+# This is used in the linux_scripts Ansible Role
+[wms_no_chr_prod:children]
+wms_prod_che_app
+wms_prod_ctl_app
+wms_prod_ldc_app
+wms_prod_lmr_app
+wms_prod_pdi_app
+
+[wms_prod_mmc]
+mmc2017-v ansible_host=10.200.85.251
+
+[wms_prod_misc]
+lmscheduler1-v ansible_host=10.200.85.80
+plwdmpdinfs1 ansible_host=10.200.85.17
+
+[wms_prod_as400]
+pdi-centos01 ansible_host=172.16.1.52
+pdi-stor2rrd ansible_host=172.16.1.12
+
+#---
+# Splunk Environment
+#---
+[splunk_prod]
+#WDM Deployment servers
+plwdmspkdpl1.Hy-Vee.net ansible_host=10.134.23.130 ansible_ssh_user=sysadmin
+plwdmspkdpl2.Hy-Vee.net ansible_host=10.134.23.131 ansible_ssh_user=sysadmin
+plwdmspkdpl3.Hy-Vee.net ansible_host=10.134.23.132 ansible_ssh_user=sysadmin
+#CHA Deployment servers
+plchaspkdpl1.Hy-Vee.net ansible_host=10.134.23.145 ansible_ssh_user=sysadmin
+plchaspkdpl2.Hy-Vee.net ansible_host=10.134.23.146 ansible_ssh_user=sysadmin
+plchaspkdpl3.Hy-Vee.net ansible_host=10.134.23.147 ansible_ssh_user=sysadmin
+#WDM Heavy Forwarder servers
+plwdmspkhvf1.Hy-Vee.net ansible_host=10.134.23.98 ansible_ssh_user=sysadmin
+plwdmspkhvf2.Hy-Vee.net ansible_host=10.134.23.99 ansible_ssh_user=sysadmin
+plwdmspkhvf3.Hy-Vee.net ansible_host=10.134.23.100 ansible_ssh_user=sysadmin
+plwdmspkhvf4.Hy-Vee.net ansible_host=10.134.23.101 ansible_ssh_user=sysadmin
+#CHA Heavy Forwarder servers
+plchaspkhvf1.Hy-Vee.net ansible_host=10.134.23.110 ansible_ssh_user=sysadmin
+plchaspkhvf2.Hy-Vee.net ansible_host=10.134.23.111 ansible_ssh_user=sysadmin
+plchaspkhvf3.Hy-Vee.net ansible_host=10.134.23.112 ansible_ssh_user=sysadmin
+plchaspkhvf4.Hy-Vee.net ansible_host=10.134.23.113 ansible_ssh_user=sysadmin
+
+#---
+# Axonious Evironment
+#---
+[axonious_prod]
+axonious ansible_host=10.134.8.186 ansible_ssh_user=sysadmin
+axonious2 ansible_host=10.134.8.189 ansible_ssh_user=sysadmin
+
+#---
+# Rapid7 Environment
+#---
+[rapid7_prod:children]
+rapid7_prod_scan
+rapid7_prod_orchestrator
+rapid7_prod_console
+;rapid7_prod_amber # NEED TO FIX FOR PATCHING
+;rapid7_prod_mhb # NEED TO FIX FOR PATCHING
+
+[rapid7_prod_scan]
+plwdmr7sapp1 ansible_host=10.134.8.50 ansible_ssh_user=sysadmin
+plwdmr7sapp2 ansible_host=10.134.8.51 ansible_ssh_user=sysadmin
+r7corpse1-v ansible_host=10.215.8.33 ansible_ssh_user=sysadmin
+r7corpse2-v ansible_host=10.215.8.40 ansible_ssh_user=sysadmin
+
+[rapid7_prod_orchestrator]
+plwdmr7orch1 ansible_host=10.200.66.34
+
+[rapid7_prod_console]
+plwdmr7app1 ansible_host=10.200.65.52 ansible_ssh_user=sysadmin
+
+[rapid7_prod_amber]
+r7amberwebse-v ansible_host=10.136.66.3
+
+[rapid7_prod_mhb]
+r7mhbdmz ansible_host=192.168.126.18
+
+[jenkins_prod]
+jenkins ansible_host=10.134.8.194 ansible_ssh_user=sysadmin
+agent1 ansible_host=10.134.8.195 ansible_ssh_user=sysadmin
+agent2 ansible_host=10.134.8.196 ansible_ssh_user=sysadmin
+jenkins-slave-3 ansible_host=10.134.8.197 ansible_ssh_user=sysadmin
+
+#---
+# Subscription Management Environment
+#---
+[satellite_prod:children]
+satellite
+virt_app
+
+[satellite]
+plsatellite1 ansible_host=10.134.64.16 ansible_ssh_user=sysadmin
+
+[virt]
+virtwho1-v ansible_host=10.200.64.70 ansible_ssh_user=sysadmin
+
+[smt_prod]
+smt1-v ansible_host=10.200.65.72 ansible_ssh_user=sysadmin
+
+#---
+# Graphite Environment
+#---
+[graphite_prod]
+plwdmgraphite1 ansible_host=10.200.66.156
+
+#---
+# Database Management Environment
+#---
+[dbmgmt_prod]
+occ1-v ansible_host=10.134.10.2
+plwdmwmsdbv1 ansible_host=10.134.10.3
+
+#---
+# NXLog Environment
+#---
+[nxlog_prod]
+plnxlog1 ansible_host=10.134.64.175
+plnxlog2 ansible_host=10.134.64.176
+
+#---
+# Syniti Environment
+#---
+[syniti_prod]
+plsyniticon1 ansible_host=10.134.64.49
+
+#---
+# NMS Portal (Ubiquity) Environment
+#---
+[ubiquity_prod]
+; corpnetteam1 ansible_host=10.200.64.240 # NEED TO FIX FOR PATCHING
+plwdmplmapp1 ansible_host=10.200.66.157
+
+#---
+# Order Processing Environment
+#---
+[scjobs_prod]
+scjobsprod-v ansible_host=10.200.65.14
+
+#---
+# Dell Support Assist Enterprise
+#---
+[dell_prod]
+plwdmsaeapp1 ansible_host=10.200.66.54
+
+#---
+# S2 Security Badging Environment
+#---
+[s2badge_prod:children]
+s2badge_prod_net
+s2badge_prod_amber
+s2badge_prod_mhb
+s2badge_prod_pdi
+s2badge_prod_india
+
+[s2badge_prod_net]
+s2netbox1-v ansible_host=10.200.65.180
+s2netbox2-v ansibile_host=10.215.1.56
+s2netbox3-v ansible_host=10.200.66.64
+s2netbox4-v ansible_host=10.200.66.71
+s2netbox5-v ansibile_host=10.200.66.108
+s2netbox6-v ansible_host=10.200.66.116
+s2netbox7-v ansible_host=10.200.66.191
+
+[s2badge_prod_amber]
+s2ambnetbox01 ansible_host=10.134.64.138
+s2ambnetbox02 ansible_host=10.134.64.139
+
+[s2badge_prod_mhb]
+s2mhbnetbox01 ansible_host=10.134.64.147
+
+[s2badge_prod_pdi]
+s2pdinetbox01 ansible_host=10.134.64.148
+
+[s2badge_prod_india]
+s2global1-v ansible_host=10.200.65.5

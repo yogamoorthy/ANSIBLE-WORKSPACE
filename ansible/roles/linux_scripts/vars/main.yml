@@ -1,0 +1,189 @@
+---
+scripts:
+  nrpe_fixer.sh:
+    state: file
+  clean_mail_log.sh:
+    state: file
+  log4shell-mitigation.sh:
+    state: file
+  cron_viewer.sh:
+    state: file
+  ansible_backup_manager.sh:
+    state: file
+
+gk_scripts:
+  gk-info:
+    state: file
+    dest: /opt/hy-vee/scripts/gk
+  gk-sos:
+    state: file
+    dest: /opt/hy-vee/scripts/gk
+  tomcatctl:
+    state: file
+    dest: /opt/hy-vee/scripts/gk
+  gk-app.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/app
+    owner: gkadmin
+    group: gkadmingroup
+  lb-status:
+    state: file
+    owner: gkadmin
+    group: gkadmingroup
+  check_open_files_for_tomcat.sh:
+    state: file
+  check-ucon-export-xml-count.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/gk
+    owner: gkadmin
+    group: gkadmingroup
+  version-check.sh:
+    state: file
+    owner: gkadmin
+    group: gkadmingroup
+
+wms_scripts:
+  env-setup.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  wms-app.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/app
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  Shipment_cleanup.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  purge_wm_mip_mda.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  log_killer.sh:
+    state: file
+  purgeWMIntegration.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  stale_print_queue_cleaner.sh:
+    state: file
+  wms-log-cleanup.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  wmsrecycle-status.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  ora-smoketest.sh:
+    state: file
+  wsc-pdi.sh:
+    state: file
+  wms-cert-checker.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/cert-checker.sh
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  wms-miptrust-checker.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/miptrust-checker.sh
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+
+chr_wms_scripts:
+# WMS generic scripts
+  log_killer.sh:
+    state: file
+  purgeWMIntegration.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  stale_print_queue_cleaner.sh:
+    state: file
+  wms-log-cleanup.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  wmsrecycle-status.sh:
+    state: file
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  ora-smoketest.sh:
+    state: file
+  wsc-pdi.sh:
+    state: file
+  wms-cert-checker.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/cert-checker.sh
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+  wms-miptrust-checker.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/miptrust-checker.sh
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+# CHR GRO scripts
+  gro/env-setup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/gro
+    owner: scopeadm
+    group: scopeadm
+  gro/gro-app.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/gro/gro
+    owner: scopeadm
+    group: scopeadm
+  gro/purge_wm_mip_mda.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/gro
+    owner: scopeadm
+    group: scopeadm
+  gro/Shipment_cleanup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/gro
+    owner: scopeadm
+    group: scopeadm
+# CHR HBC scripts
+  hbc/env-setup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/hbc
+    owner: scopeadm
+    group: scopeadm
+  hbc/hbc-app.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/hbc/hbc
+    owner: scopeadm
+    group: scopeadm
+  hbc/purge_wm_mip_mda.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/hbc
+    owner: scopeadm
+    group: scopeadm
+  hbc/Shipment_cleanup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/hbc
+    owner: scopeadm
+    group: scopeadm
+# CHR PER scripts
+  per/env-setup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/per
+    owner: scopeadm
+    group: scopeadm
+  per/per-app.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/per/per
+    owner: scopeadm
+    group: scopeadm
+  per/purge_wm_mip_mda.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/per
+    owner: scopeadm
+    group: scopeadm
+  per/Shipment_cleanup.sh:
+    state: file
+    dest: /opt/hy-vee/scripts/per
+    owner: scopeadm
+    group: scopeadm
+...

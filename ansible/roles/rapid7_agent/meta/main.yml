@@ -1,0 +1,14 @@
+---
+#Rapid7 Agent Installer
+
+galaxy_info:
+  author: Andrew Wickham, Jiovanni Tapia
+  description: Rapid7 Agent Installer
+  license: MIT
+  platforms:
+  - name: CentOS
+  - name: RedHat
+  - name: SUSE
+  - name: Rocky
+  categories:
+  - system

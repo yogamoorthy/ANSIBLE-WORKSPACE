@@ -1,0 +1,78 @@
+---
+- name: Pull state of all services
+  service_facts:
+  register: service_facts
+  changed_when: false
+
+- name: ensure /var/log/shell_snitch exists
+  file:
+    path: /var/log/shell_snitch
+    state: directory
+    owner: root
+    group: root
+    mode: 0700
+
+- name: ensure prompt recorder in /etc/bashrc
+  lineinfile:
+    path: "/etc/{{ bashrc[ansible_distribution] }}"
+    regexp: '^export PROMPT_COMMAND'
+    line: "export PROMPT_COMMAND='RETRN_VAL=$?;logger -p local6.debug \"$(whoami) [$$] $(who am i| cut -d\"(\" -f2 |cut -d\")\" -f1) : $(history 1 | sed \"s/^[ ]*[0-9]\\+[ ]*//\" ) [$RETRN_VAL]\" [pwd:$(pwd)]'"
+
+# - name: debugging
+#   debug: 
+#     var: service_facts["ansible_facts"]["services"]["rsyslog.service"]
+
+# - name: debugging
+#   debug: 
+#     var: service_facts["ansible_facts"]["services"]["syslog-ng.service"]
+
+# Enforce rsyslog bash.conf file 
+- name: enforce rsyslog bash.conf
+  template:
+    src: bash.conf.j2
+    dest: /etc/rsyslog.d/bash.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart rsyslog
+  when: 
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"] is defined
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"]["status"] == "enabled"
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"]["state"] == "running"
+
+# Ensure rsyslog is running
+- name: Ensure rsyslog is running
+  service:
+    name: rsyslog
+    state: started
+    enabled: yes
+  when:
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"] is defined
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"]["status"] == "enabled"
+    - service_facts["ansible_facts"]["services"]["rsyslog.service"]["state"] == "running"
+
+# Enforce syslog-ng bash.conf file 
+- name: enforce syslog-ng bash.conf
+  template:
+    src: bash.conf.j2
+    dest: /etc/syslog-ng/conf.d/bash.conf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart syslog-ng
+  when:
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"] is defined
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"]["status"] == "enabled"
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"]["state"] == "running"
+
+# Ensure rsyslog is running
+- name: Ensure syslog-ng is running
+  service:
+    name: syslog-ng
+    state: started
+    enabled: yes
+  when:
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"] is defined
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"]["status"] == "enabled"
+    - service_facts["ansible_facts"]["services"]["syslog-ng.service"]["state"] == "running" 
+...

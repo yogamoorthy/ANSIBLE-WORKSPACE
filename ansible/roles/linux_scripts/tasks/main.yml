@@ -1,0 +1,103 @@
+---
+- name: Create Central Scripts Dir
+  file:
+    path: /opt/hy-vee/scripts
+    state: directory
+    mode: '0755'
+
+- name: Deploy Generic Management Scripts to Servers
+  template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value.dest | default('/opt/hy-vee/scripts') }}"
+    owner: "{{ item.value.owner | default('root') }}"
+    group: "{{ item.value.group | default('root') }}"
+    mode: "{{ item.value.mode | default('0755') }}"
+  with_dict: "{{ scripts }}"
+
+- name: Deploy Scripts to GK Servers
+  template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value.dest | default('/opt/hy-vee/scripts') }}"
+    owner: "{{ item.value.owner | default('root') }}"
+    group: "{{ item.value.group | default('root') }}"
+    mode: "{{ item.value.mode | default('0755') }}"
+  with_dict: "{{ gk_scripts }}"
+  when: ('gk_qa_app' in group_names) or
+        ('gk_dev_app' in group_names) or 
+        ('gk_prod_app' in group_names)
+
+- name: Deploy Script to GK POS Servers
+  template:
+    src: pubsub.sh
+    dest: /opt/hy-vee/scripts/pubsub.sh
+    owner: gkadmin
+    group: root
+    mode: '0755'
+  when: ('gk_qa_app_pos' in group_names) or
+        ('gk_dev_app_pos' in group_names) or 
+        ('gk_prod_app_pos' in group_names)
+
+- name: Deploy Script to GK SDC Servers
+  template:
+    src: export_transactions.sh
+    dest: /opt/hy-vee/scripts/export_transactions.sh
+    owner: root
+    group: root
+    mode: '0755'
+  when: ('gk_qa_app_sdc' in group_names) or
+        ('gk_dev_app_sdc' in group_names) or 
+        ('gk_prod_app_sdc' in group_names)
+
+- name: Deploy Script to GK WEBPOS Servers
+  template:
+    src: pos-service-profiler.sh
+    dest: /opt/hy-vee/scripts/pubsub.sh
+    owner: gkadmin
+    group: gkadmingroup
+    mode: '0755'
+  when: ('gk_qa_web_pos' in group_names) or
+        ('gk_dev_web_pos' in group_names) or 
+        ('gk_prod_web_pos' in group_names)
+
+- name: Deploy Scripts to WMS servers (excludes CHR environment)
+  template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value.dest | default('/opt/hy-vee/scripts') }}"
+    owner: "{{ item.value.owner | default('root') }}"
+    group: "{{ item.value.group | default('root') }}"
+    mode: "{{ item.value.mode | default('0755') }}"
+  with_dict: "{{ wms_scripts }}"
+  when: ('wms_no_chr_dev' in group_names) or 
+        ('wms_no_chr_prod' in group_names)
+
+- name: Deploy Scripts to CHR WMS servers
+  template:
+    src: "{{ item.key }}"
+    dest: "{{ item.value.dest | default('/opt/hy-vee/scripts') }}"
+    owner: "{{ item.value.owner | default('root') }}"
+    group: "{{ item.value.group | default('root') }}"
+    mode: "{{ item.value.mode | default('0755') }}"
+  with_dict: "{{ chr_wms_scripts }}"
+  when: ('wms_chr_dev_app' in group_names) or 
+        ('wms_chr_prod_app' in group_names)
+
+- name: Deploy MIF Script to MIF servers
+  template:
+    src: mif.sh
+    dest: /opt/hy-vee/scripts/mif
+    owner: "{{ admin_user }}"
+    group: "{{ admin_user }}"
+    mode: '0755'
+  when: ('wms_mif_dev_app' in group_names) or 
+        ('wms_mif_prod_app' in group_names)
+
+- name: Deploy SCI Script to SCI servers
+  template:
+    src: sci.sh
+    dest: /opt/hy-vee/scripts/sci
+    owner: sciadmin
+    group: sciadmin
+    mode: '0755'
+  when: ('wms_sci_dev_app' in group_names) or 
+        ('wms_sci_prod_app' in group_names)
+...

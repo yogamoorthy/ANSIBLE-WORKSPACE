@@ -1,0 +1,5 @@
+[nagios-Artifactory]
+name=nagios-Artifactory
+baseurl=https://artifactory.prod.hy-vee.cloud/artifactory/public-opensuse-nagios-plugin/
+enabled=1
+gpgcheck=0

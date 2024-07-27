@@ -1,0 +1,12 @@
+---
+galaxy_info:
+  author: Andrew Wickham
+  description: Manage ssh keys for Linux machines
+  license: MIT
+  platforms:
+    - name: RedHat
+    - name: Debian
+    - name: SUSE
+  categories:
+    - system
+...

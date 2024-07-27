@@ -1,0 +1,12 @@
+---
+accounts:
+  - sysadmin
+  - ansible
+  - concourse
+  - jenkins
+
+admins:
+  - jiovanni.tapia
+  - jricheson
+  - H1537951
+...

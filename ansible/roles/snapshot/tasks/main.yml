@@ -1,0 +1,56 @@
+---
+- name: Gather VM Info 
+  import_tasks: info.yml
+  when: "not inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')"
+
+################## Jenkins Tasks ########################
+- name: Automated Snapshot Cleanup
+  import_tasks: jenkins/jenkins.yml
+  when: 
+    - "not inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')"
+    - input == 'remove' or input == 'delete'
+    - jenkins
+################## Jenkins Tasks ########################
+
+################## VCenter Tasks ########################
+- name: Create VMWare Snapshot
+  import_tasks: vcenter/create.yml
+  when: 
+    - "not inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')"
+    - input == 'add' or input == 'create'
+    - not jenkins
+
+- name: Remove VMWare Snapshot
+  import_tasks: vcenter/remove.yml
+  when: 
+    - "not inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')"
+    - input == 'remove' or input == 'delete'
+    - not jenkins
+################## VCenter Tasks ########################
+
+################## HyperV Tasks ########################
+# Nagios Core VMs are in HyperV instead of VCenter
+- name: Gather Info on Nagios VMs
+  import_tasks: hyperv/info.yml
+  when: 
+    - "'Nagios' in inventory_hostname"
+    - inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')
+    - not jenkins
+
+- name: Create Nagios Snapshots
+  import_tasks: hyperv/create.yml
+  when:
+    - "'Nagios' in inventory_hostname"
+    - inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')
+    - input == 'add' or input == 'create'
+    - not jenkins
+
+- name: Remove Nagios Snapshots
+  import_tasks: hyperv/remove.yml
+  when:
+    - "'Nagios' in inventory_hostname"
+    - inventory_hostname is match('^\\d{4}Nagios.hy-vee.net$')
+    - input == 'remove' or input == 'delete'
+    - not jenkins
+################## HyperV Tasks ########################
+...

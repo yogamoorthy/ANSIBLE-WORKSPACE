@@ -1,0 +1,5 @@
+---
+artifactory_url: "https://artifactory.prod.hy-vee.cloud/artifactory"
+win_artifactory_repo: "isos-windows-local-local"
+temp_dir: "C:\\Temp"
+...

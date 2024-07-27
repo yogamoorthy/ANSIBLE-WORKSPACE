@@ -1,0 +1,21 @@
+galaxy_info:
+  author: William Vanderlip-Mclean
+  description: Configures the Nagios Execution Plugin
+  company: Hy-Vee, INC.
+  license: GPLv2
+
+  min_ansible_version: 2.7
+
+  platforms:
+  - name: CentOS
+    versions:
+    - 7
+  - name: Ubuntu
+    versions:
+    - 16.4
+  - name: Windows
+    versions:
+    - 2012
+  galaxy_tags: []
+
+dependencies: []

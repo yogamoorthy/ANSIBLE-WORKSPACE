@@ -1,0 +1,12 @@
+---
+#Default variables used in tasks/main.yml
+cid: 888369C970B245BC800C3B60DEFBAFB2-3F 
+
+# Distro-specific packages:
+artifactory: https://artifactory.prod.hy-vee.cloud/artifactory
+rhel7_package: falcon-sensor-7.17.0-17005.el7.x86_64.rpm
+rhel8_package: falcon-sensor-7.17.0-17005.el8.x86_64.rpm
+rhel9_package: falcon-sensor-7.15.0-16803.el9.x86_64.rpm
+suse_package: falcon-sensor-7.17.0-17005.suse12.x86_64.rpm
+deb_package: falcon-sensor_7.17.0-17005_amd64.deb
+...

@@ -1,0 +1,10 @@
+---
+- name: Remove Snapshot for Nagios VM
+  win_shell: |
+    $nagVM = Get-VM | Where-Object VMName -Like "*Nagios*" | Where-Object ReplicationMode -ne "Replica"
+    $preAnsNagUpChks =  $nagVM | Get-VMSnapshot
+    if ($null -ne $preAnsNagUpChks) {
+      $preAnsNagUpChks | Remove-VMSnapshot -Confirm:$false
+    }
+  delegate_to: "{{ vm_host }}"
+...

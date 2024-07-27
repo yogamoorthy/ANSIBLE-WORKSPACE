@@ -1,0 +1,6 @@
+---
+application: 
+    - syniti-agent-rest
+    - syniti-match
+    - syniti-rdc
+...

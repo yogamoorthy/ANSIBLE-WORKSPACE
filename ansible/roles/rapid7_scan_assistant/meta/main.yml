@@ -1,0 +1,14 @@
+---
+galaxy_info:
+  author: Jiovanni Tapia
+  description: Installs and manages Rapid7 Scan Assistant. This is used for running credentialed scans via Rapid7.
+  license: MIT
+  platforms:
+  - name: RedHat
+  - name: SUSE
+  - name: Debian
+  - name: Ubuntu
+  - name: CentOS
+  categories:
+  - system
+...

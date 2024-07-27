@@ -1,0 +1,149 @@
+#!/bin/bash
+
+red='\033[0;31m'
+green='\033[0;32m'
+lightgreen='\033[1;32m'
+yellow='\033[1;33m'
+nc='\033[0m'
+
+display_help() {
+    echo
+    echo -e "${green}Usage: $0 [option]... [application_name]...${nc}" >&2
+    echo
+    echo -e "${lightgreen}\tdiagnose\t\tRuns through the diagnostic gathering steps, resulting in a zip file${nc}"
+    echo -e "${yellow}\tExample: $0 diagnose cis${nc}"
+    echo
+    exit 1
+}
+
+base_vars() {
+  scripts_home="/opt/hy-vee/scripts"
+  java_bin="/usr/local/gkretail_local/3rdparty/jdk/bin"
+  app_name="$1"
+  app_context=$($scripts_home/gk/gk-info $1 context)
+  app_log="/usr/local/gkretail_local/$app_name/log"
+  server_name=$(hostname)
+  time_date=$(date '+%s')
+  tomcat_date=$(systemctl status tomcat | grep 'Active' | awk '{ print $6 }')
+  tomcat_time=$(systemctl status tomcat | grep 'Active' | awk '{ print $7 }')
+  time_frame="$tomcat_date $tomcat_time"
+  gk_archive="/usr/local/gkretail/archive"
+  sos_report="report-$server_name-$time_date.zip"
+}
+
+application_info() {
+  app_dir_count=$(find /usr/local/ -maxdepth 2 -name $app_name 2>/dev/null | wc -l)
+  echo "  Gathering application info..."
+  if [ "$app_dir_count" -eq "1" ];
+    then
+      app_home=$(find /usr/local/ -maxdepth 2 -name $app_name 2>/dev/null)
+    elif [ "$app_dir_count" -eq "2" ];
+      then
+        app_home=$(find /usr/local/gkretail -maxdepth 2 -name $app_name 2>/dev/null)
+    else
+      echo -e "  ${red}Could not find application home... check the application name.${nc}"
+      exit 1
+  fi
+}
+
+#----- Application Logs ---------------------#
+application_logs() {
+  app_zip="$app_name-$time_date.zip"
+  echo "  Gathering application logs..."
+  find $app_log/* \
+    -newermt "$time_frame" \
+    -exec zip -jq $gk_archive/$app_zip {} \;
+
+  zip -jq $gk_archive/$sos_report $gk_archive/$app_zip
+  if [ $? -eq 0 ]; then
+    echo "  Application logs successfully zipped."
+  else
+    echo -e "  ${red}FAILED zipping application logs.${nc}"
+  fi
+  rm $gk_archive/$app_zip
+}
+
+#----- Application Configuration ------------#
+application_configuration() {
+  app_config_zip="$app_name-configuration-$time_date.zip"
+
+  zip -jrq $gk_archive/$app_config_zip $app_home/config
+  zip -jq $gk_archive/$sos_report $gk_archive/$app_config_zip
+
+  rm $gk_archive/$app_config_zip
+}
+
+#----- System Logs --------------------------#
+system_logs() {
+  # This function has been commented out from the sos report
+  # Running journalctl requires sudo permissions which gkadmin currently doesn't have
+  journalctl_log="journal-$time_date.log"
+
+  sudo journalctl --since "$tomcat_date $tomcat_time" \
+    > $gk_archive/$journalctl_log
+
+  zip -jq $gk_archive/$sos_report $gk_archive/$journalctl_log
+
+  rm $gk_archive/$journalctl_log
+}
+
+#----- Tomcat Logs --------------------------#
+tomcat_logs() {
+  tomcat_zip="tomcat-$time_date.zip"
+  echo "  Gathering tomcat logs..."
+  find /usr/local/gkretail_local/3rdparty/tomcat/logs/* \
+    -newermt "$tomcat_date $tomcat_time" \
+    -exec zip -jq $gk_archive/$tomcat_zip {} \;
+
+  zip -jq $gk_archive/$sos_report $gk_archive/$tomcat_zip
+  if [ $? -eq 0 ]; then
+    echo "  Tomcat logs successfully zipped."
+  else
+    echo -e "  ${red}FAILED zipping tomcat logs.${nc}"
+  fi
+  rm $gk_archive/$tomcat_zip
+}
+
+#----- Java Thread Dump --------------------#
+java_thread_dump() {
+  # Thread dump has been commented out. Running this will cause the apps to stall if they are running.
+  jstack_zip="jstack-$time_date.zip"
+  java_pid=$($java_bin/jps -v | grep 'Bootstrap' | awk '{ print $1 }')
+  echo "  Gathering java thread dumps....This may take awhile."
+  echo "   - Starting with a forced dump."
+  $java_bin/jhsdb jstack --pid $java_pid -F > $gk_archive/jstack-thread-dump.log
+  echo "   - Moving on to a long dump."
+  $java_bin/jstack -l $java_pid > $gk_archive/jstack-long-list.log
+  echo "   - Ending with a mixed dump."
+  $java_bin/jhsdb jstack --pid $java_pid --mixed > $gk_archive/jstack-java_native-frames.log
+  echo "  Dumps completed successfully. That was a great dump."
+  zip -jq $gk_archive/$jstack_zip $gk_archive/jstack-*.log
+  zip -jq $gk_archive/$sos_report $gk_archive/$jstack_zip
+  if [ $? -eq 0 ]; then
+    echo "  Thread dumps successfully zipped."
+  else
+    echo -e "  ${red}FAILED zipping thread dumps.${nc}"
+  fi
+  rm $gk_archive/jstack*
+}
+
+finalize() {
+  echo -e "${green}SOS Report available at $gk_archive/$sos_report${nc}"
+}
+
+case "$1" in
+  diagnose)
+    base_vars $2
+    application_info
+    application_logs
+    application_configuration
+    # system_logs has been commented out. Running this requires sudo permissions which gkadmin currently doesn't have
+    # system_logs
+    tomcat_logs
+    # thread_dump has been commented out. Running this will cause the apps to stall if they are running.
+    # java_thread_dump
+    finalize
+    ;;
+  *)
+    display_help
+esac

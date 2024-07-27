@@ -1,0 +1,40 @@
+pipeline {
+    agent any
+    stages {
+        stage('Setup') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'SYSTEMS_VAULT_APPROLE', 
+                    passwordVariable: 'VAULT_SECRET_ID', 
+                    usernameVariable: 'VAULT_APPROLE_ID')]
+                ) {
+                sh """
+                ./do/vault ${VAULT_APPROLE_ID} ${VAULT_SECRET_ID}
+                ./do/setup
+                """
+                }
+            }
+        }
+        stage('Patch') {
+            steps {
+                sh """#!/bin/bash
+                . ./venv/bin/activate
+                export ENVIRONMENT="${params.environment}"
+                export SYSTEM="${params.system}"
+                export SUBSYSTEM="${params.subsystem}"
+                ./do/run $ENVIRONMENT $SYSTEM $SUBSYSTEM
+                """
+            }
+        }
+        stage('Cleanup') {
+            steps {
+            sh './do/cleanup'
+            }
+        }
+    }
+    post {
+        cleanup {
+            cleanWs()
+        }
+    }
+}

@@ -1,0 +1,147 @@
+---
+- name: Gather Snapshot Information From WDM
+  vmware_guest_snapshot_info:
+    hostname: wdm-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+    folder: "{{ folder }}"
+    datacenter: wdm
+  delegate_to: localhost
+  ignore_errors: true
+  register: snapshot_info_wdm
+  when: vm_info_wdm.folders is defined
+
+- name: Gather Snapshot Information From Corporate
+  vmware_guest_snapshot_info:
+    hostname: corpvcenter-v.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+    folder: "{{ folder }}"
+    datacenter: corporate
+  delegate_to: localhost
+  ignore_errors: true
+  register: snapshot_info_corp
+  when: vm_info_corp.folders is defined 
+
+- name: Gather Snapshot Information From Chaska
+  vmware_guest_snapshot_info:
+    hostname: cha-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    name: "{{ ansible_hostname | lower }}"
+    validate_certs: no
+    folder: "{{ folder }}"
+    datacenter: cha
+  delegate_to: localhost
+  ignore_errors: true
+  register: snapshot_info_cha
+  when: vm_info_cha.folders is defined
+
+- name: Set Snapshot Date - WDM
+  set_fact:
+    snapshot_date: "{{ snapshot_info_wdm.guest_snapshots.snapshots | map(attribute='creation_time') | map('regex_replace', '(\\d{4}-\\d{2}-\\d{2}).*', '\\1') | list }}"
+  when: snapshot_info_wdm.guest_snapshots.snapshots is defined
+
+- name: Set Snapshot Date - Corp
+  set_fact:
+    snapshot_date: "{{ snapshot_info_corp.guest_snapshots.snapshots | map(attribute='creation_time') | map('regex_replace', '(\\d{4}-\\d{2}-\\d{2}).*', '\\1') | list }}"
+  when: snapshot_info_corp.guest_snapshots.snapshots is defined
+
+- name: Set Snapshot Date - CHA
+  set_fact:
+    snapshot_date: "{{ snapshot_info_cha.guest_snapshots.snapshots | map(attribute='creation_time') | map('regex_replace', '(\\d{4}-\\d{2}-\\d{2}).*', '\\1') | list }}"
+  when: snapshot_info_cha.guest_snapshots.snapshots is defined
+
+- name: Set Current Date
+  set_fact:
+    current_date: "{{ ansible_date_time.date }}"
+
+# - name: Debug Current Date and Snapshot Date
+#   debug:
+#     msg:
+#       - "Current date: {{ current_date }}"
+#       - "Snapshot date: {{ snapshot_date }}"
+
+- name: Calculate Age in Days
+  set_fact:
+    days: "{{ days | default([]) + [( ( current_date | to_datetime('%Y-%m-%d')) - ( item | to_datetime('%Y-%m-%d') ) ).days] }}"
+  loop: "{{ snapshot_date }}"
+  ignore_errors: true
+
+# - name: Debug the Age of Snapshot(s)
+#   debug:
+#     msg: "Snapshot is {{ days }} day(s) old."
+
+- name: Remove Snapshots in WDM Greater Than or Equal to 7 Days
+  vmware_guest_snapshot:
+    hostname: wdm-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: wdm
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    snapshot_name: "{{ item.1.name }}"
+    state: absent
+    validate_certs: no
+  delegate_to: localhost
+  ignore_errors: true
+  become: False
+  with_together:
+    - "{{ days }}"
+    - "{{ snapshot_info_wdm.guest_snapshots.snapshots }}"
+  loop_control:
+    label: "{{ item.1.name }}"
+  when: 
+    - item.0 >= 7
+    - snapshot_info_wdm.guest_snapshots.snapshots is defined
+
+- name: Remove Snapshots in Corporate Greater Than or Equal to 7 Days
+  vmware_guest_snapshot:
+    hostname: corpvcenter-v.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: corporate
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    snapshot_name: "{{ item.1.name }}"
+    state: absent
+    validate_certs: no
+  delegate_to: localhost
+  ignore_errors: true
+  become: False
+  with_together:
+    - "{{ days }}"
+    - "{{ snapshot_info_corp.guest_snapshots.snapshots }}"
+  loop_control:
+    label: "{{ item.1.name }}"
+  when: 
+    - item.0 >= 7
+    - snapshot_info_corp.guest_snapshots.snapshots is defined
+
+- name: Remove Snapshots in Chaska Greater Than or Equal to 7 Days
+  vmware_guest_snapshot:
+    hostname: cha-vcenter01.hy-vee.net
+    username: "{{ vmware_username }}"
+    password: "{{ vmware_password }}"
+    datacenter: cha
+    folder: "{{ folder }}"
+    name: "{{ ansible_hostname | lower }}"
+    snapshot_name: "{{ item.1.name }}"
+    state: absent
+    validate_certs: no
+  delegate_to: localhost
+  ignore_errors: true
+  become: False
+  with_together:
+    - "{{ days }}"
+    - "{{ snapshot_info_cha.guest_snapshots.snapshots }}"
+  loop_control:
+    label: "{{ item.1.name }}"
+  when: 
+    - item.0 >= 7
+    - snapshot_info_cha.guest_snapshots.snapshots is defined
+...

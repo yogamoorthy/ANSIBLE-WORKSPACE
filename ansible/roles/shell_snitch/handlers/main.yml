@@ -1,0 +1,11 @@
+---
+# Handlers for shell_snitch
+- name: restart rsyslog
+  service:
+    name: rsyslog
+    state: restarted
+
+- name: restart syslog-ng
+  service:
+    name: syslog-ng
+    state: restarted

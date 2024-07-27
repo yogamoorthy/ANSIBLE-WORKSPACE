@@ -1,0 +1,52 @@
+[qa:children]
+gk_qa
+scjobs_qa
+
+#---
+# GK Inventory
+#---
+[gk_qa:children]
+gk_qa_mgr
+gk_qa_sdc
+gk_qa_pos
+gk_qa_csrv
+gk_qa_webpos
+gk_qa_db
+
+[gk_qa_app:children]
+gk_qa_mgr
+gk_qa_sdc
+gk_qa_pos
+gk_qa_csrv
+gk_qa_webpos
+
+[gk_qa_mgr]
+gkqamgr1-v ansible_host=10.134.1.70
+
+[gk_qa_sdc]
+gkqasdc1-v ansible_host=10.134.1.71
+gkqasdc2-v ansible_host=10.134.1.72
+gkqasdc3-v ansible_host=10.134.1.81
+
+[gk_qa_pos]
+gkqapos1-v ansible_host=10.134.1.73
+gkqapos2-v ansible_host=10.134.1.74
+gkqapos3-v ansible_host=10.134.1.83
+
+[gk_qa_csrv]
+gkqacsrv1-v ansible_host=10.134.1.76
+
+[gk_qa_webpos]
+gkqawebpos1-v ansible_host=10.134.252.31
+gkqawebpos2-v ansible_host=10.134.252.32
+
+[gk_qa_db]
+gkqadb2a-v ansible_host=10.134.1.201
+gkqadb2b-v ansible_host=10.134.1.202
+gkqadb1c-v ansible_host=10.134.1.200
+
+#---
+# Order Processing Environment
+#---
+[scjobs_qa]
+scjobsqa-v ansible_host=10.200.65.13
