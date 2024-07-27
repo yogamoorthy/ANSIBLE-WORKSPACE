@@ -1,0 +1,51 @@
+---
+- name: Ensure audit packages are installed
+  package:
+   name: "{{ audit_package[ansible_distribution]}}"
+   state: latest
+
+- name: auditd log deletion cron job
+  cron:
+    name: auditd delete logs 7 days or older
+    job: find /var/log/audit -type f -mtime +7 -exec /bin/rm -f {} \;
+    special_time: hourly
+    user: root
+
+- name: Enforce the rules.d directory
+  file:
+    path: /etc/audit/rules.d
+    state: directory
+    owner: root
+    group: root
+    mode: 0760
+
+- name: Apply/enforce auditd.conf file
+  template:
+    src: auditd.conf.j2
+    dest: /etc/audit/auditd.conf
+    owner: root
+    group: root
+    mode: 0640
+  notify: restart auditd
+  
+- name: Apply/enforce audit.rules file
+  template:
+    src: audit.rules.j2
+    dest: /etc/audit/rules.d/audit.rules
+    owner: root
+    group: root
+    mode: 0640
+  notify: restart auditd
+
+- name: Ensure Auditd can be restarted
+  lineinfile:
+    path: /usr/lib/systemd/system/auditd.service
+    regexp: "^RefuseManualStop=yes"
+    line: "#RefuseManualStop=yes"
+  
+- name: Keep auditd service running and enabled
+  service:
+    name: auditd
+    state: started
+    enabled: yes
+...

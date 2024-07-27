@@ -1,9 +1,13 @@
 ---
+application: wms
 group_hostnames: "{{ groups['wms_dev_chr_app'] | map('extract', hostvars, ['ansible_hostname']) | join(',') }}"
 admin_user: scopeadm
 vocollect_endpoint_id:
 pri_svc_url: chrdevapp1-v
 sec_svc_url: 
+
+manh_home: /manh/apps/scope
+
 # GRO
 gro_mip_name: mip_gro
 gro_mda_name: mda_gro

@@ -1,0 +1,63 @@
+---
+##### Chariton PROD Servers #####
+- name: Chariton - Starting GRO
+  shell: 
+    cmd: "/opt/hy-vee/scripts/gro/gro start"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' in group_names or 'wms_dev_chr_app' in group_names"
+
+- name: Chariton - Starting HBC
+  shell: 
+    cmd: "/opt/hy-vee/scripts/hbc/hbc start"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' in group_names or 'wms_dev_chr_app' in group_names"
+
+- name: Chariton - Starting PER
+  shell: 
+    cmd: "/opt/hy-vee/scripts/per/per start"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' in group_names or 'wms_dev_chr_app' in group_names"
+
+##### All Other Warehouse Servers #####
+- name: Starting MIP
+  shell: 
+    cmd: "{{ manh_home }}/{{ mip_name }}/.sd/stop.sh"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' not in group_names and 'wms_dev_chr_app' not in group_names"
+
+- name: Starting MDA
+  shell: 
+    cmd: "{{ manh_home }}/{{ mda_name }}/.sd/stop.sh"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' not in group_names and 'wms_dev_chr_app' not in group_names"
+
+- name: Starting WM
+  shell: 
+    cmd: "{{ manh_home }}/{{ wm_name }}/.sd/stop.sh"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when: "'wms_prod_chr_app' not in group_names and 'wms_dev_chr_app' not in group_names"
+
+- name: Starting LM
+  shell: 
+    cmd: "{{ manh_home }}/{{ lm_name }}/.sd/stop.sh"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when:
+    - "'wms_prod_chr_app' not in group_names and 'wms_dev_chr_app' not in group_names" 
+    - lm_name != "null"
+
+- name: Starting DB
+  shell: 
+    cmd: "{{ manh_home }}/{{ db_name }}/.sd/stop.sh"
+  become: yes
+  become_user: "{{ admin_user }}"
+  when:
+    - "'wms_prod_chr_app' not in group_names and 'wms_dev_chr_app' not in group_names" 
+    - db_name != "null"
+...

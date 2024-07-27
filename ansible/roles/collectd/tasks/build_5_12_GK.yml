@@ -1,0 +1,96 @@
+---
+#----- Idempotency Checker (come up with a better idea for a source install TONY!!!!) --------------------------------------#
+- name: Check that the systemd file exists
+  stat:
+    path: /etc/systemd/system/multi-user.target.wants/collectd.service
+  register: stat_daemon
+
+- name: download Java Headless
+  package:
+    name: "java-1_8_0-openjdk-headless-1.8.0.282-27.56.2.x86_64"
+    state: present
+
+#----- Download source package ---------------------------------------------------------------------------------------------#
+- name: Ensure Dir for download
+  file:
+    path: "~/tmp/"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0755'
+
+- name: Software Download
+  get_url:
+    url: "{{ download_url }}"
+    dest: "~/tmp/"
+    owner: "root"
+    group: "root"
+    mode: 0644
+    force_basic_auth: true
+    url_password: "{{ artifactory_user_password }}"
+    url_username: "{{ artifactory_user }}"
+    validate_certs: no
+  when: stat_daemon.stat.exists == false
+
+#----- Unarchive source package --------------------------------------------------------------------------------------------#
+- name: Ensure Dir for tarball
+  file:
+    path: "~/tmp/{{package_name}}-{{package_version}}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: '0755'
+
+- name: Unpacking tarball
+  unarchive:
+    src: "~/tmp/{{package_name}}-{{package_version}}.{{archive_compression}}"
+    dest: "~/tmp"
+    owner: "root"
+    group: "root"
+    remote_src: yes
+    creates: "{{ source_path }}"
+  when: stat_daemon.stat.exists == false
+
+#----- Install source package ----------------------------------------------------------------------------------------------#
+- name: debug source_path
+  debug:
+    msg: "{{ source_path }}"
+
+- name: Change to source directory & run configure
+  raw: cd ~/tmp/{{ source_path }} && ./configure --with-java=/usr/local/gkretail_local/3rdparty/jdk --enable-java=force
+  when: stat_daemon.stat.exists == false
+
+- name: Build the default target
+  make:
+    chdir: "~/tmp/{{ source_path }}"
+  when: stat_daemon.stat.exists == false
+
+- name: Run 'install' target
+  make:
+    chdir: "~/tmp/{{ source_path }}"
+    target: install
+  when: stat_daemon.stat.exists == false
+
+#----- Drop files & templates ----------------------------------------------------------------------------------------------#
+- name: collectd.conf template
+  ansible.builtin.template:
+    src: templates/collectd.conf.j2
+    dest: /opt/collectd/etc/collectd.conf
+    owner: root
+    group: root
+    mode: '0640'
+
+- name: systemd unit file
+  ansible.builtin.template:
+    src: templates/collectd.service.j2
+    dest: /usr/lib/systemd/system/collectd.service
+    owner: root
+    group: root
+    mode: '777'
+
+- name: Load collectd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
+    name: collectd

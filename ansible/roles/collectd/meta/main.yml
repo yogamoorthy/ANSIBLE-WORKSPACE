@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  author: Andrew Wickham
+  description: Installs and configures collectd metric agent
+  license: MIT
+  platforms:
+  - name: CentOS
+  - name: RedHat
+  - name: SUSE
+  categories:
+  - system

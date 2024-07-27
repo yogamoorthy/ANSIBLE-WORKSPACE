@@ -1,0 +1,13 @@
+---
+#File roles/aide/meta/main.yml
+
+galaxy_info:
+  author: Andrew Wickham
+  description: Installs and manages aide and file integrity checks
+  license: MIT
+  platforms:
+  - name: CentOS
+  - name: RedHat
+  - name: SUSE
+  categories:
+  - system

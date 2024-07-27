@@ -1,0 +1,38 @@
+---
+#TODO: write new split out for build vs yum
+- name: Check if GK JDK path exists - if so use JDK 1.8.0 headless and gk jdk path
+  stat:
+    path: /usr/local/gkretail_local/3rdparty/jdk
+  register: gkpath
+
+- name: build Collectd 5.12 for GK
+  import_tasks: build_5_12_GK.yml
+  when: gkpath.stat.exists
+
+- name: yum install for non GK
+  import_tasks: yumInstall.yml
+  when: gkpath.stat.exists == false
+
+# - name: check JAVA_HOME
+#   shell: echo $JAVA_HOME
+#   register: javahome
+
+# - name: get dir for JAVA_HOME
+#   shell: echo $(readlink -f `which java` | sed "s:/bin/java::")
+#   register: shouldbejavahome
+#   when: javahome.stdout == ""
+
+# - name: set JAVA_HOME
+#   blockinfile:
+#     path: /etc/profile
+#     block: |
+#       export JAVA_HOME="{{ shouldbejavahome.stdout }}"
+#       export PATH=$JAVA_HOME/bin:$PATH
+#     backup: true
+
+# - name: check JAVA_HOME
+#   shell: |
+#     echo h1: $JAVA_HOME
+#     export JAVA_HOME=$(readlink -f `which java` | sed "s:/bin/java::")
+#     echo h2: $JAVA_HOME
+#   register: javahome

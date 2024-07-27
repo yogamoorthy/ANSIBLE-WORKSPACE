@@ -1,8 +1,11 @@
 ---
+application: wms
 group_hostnames: "{{ groups['wms_prod_lmr_app'] | map('extract', hostvars, ['ansible_hostname']) | join(',') }}"
 admin_user: scopeadm
 pri_svc_url: lmrapp1a-v
 sec_svc_url: lmrapp1b-v
+
+manh_home: /manh/apps/scope
 
 mip_name: mip
 mda_name: mda

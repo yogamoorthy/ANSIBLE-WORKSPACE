@@ -1,0 +1,13 @@
+---
+# sshd enforcement configuration management
+galaxy_info:
+  author: Andrew Wickham
+  description: Install, configure, and enforce sshd on Linux Distros
+  license: MIT
+  platforms:
+    - name: RedHat
+    - name: CentOS
+    - name: SUSE
+  categories:
+    - system
+...

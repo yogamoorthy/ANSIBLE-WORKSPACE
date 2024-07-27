@@ -1,4 +1,5 @@
 ---
+application: wms
 group_hostnames: "{{ groups['wms_prod_chr_app'] | map('extract', hostvars, ['ansible_hostname']) | join(',') }}"
 admin_user: scopeadm
 vocollect_endpoint_id: 21

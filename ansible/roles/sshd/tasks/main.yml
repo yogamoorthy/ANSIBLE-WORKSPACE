@@ -1,0 +1,51 @@
+---
+# Ensure openssh-server and clients are installed
+- name: Ensure SSH packages are installed
+  package:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - openssh-server
+    - "{{ ssh_client[ansible_distribution] }}"
+
+- name: Ensure sshd is running
+  service:
+    name: sshd
+    state: started
+    enabled: yes
+
+- name: Enforce the sshd_config file
+  template:
+    src: sshd_config.j2
+    dest: /etc/ssh/sshd_config
+    owner: root
+    group: root
+    mode: 0600
+  notify: restart sshd
+
+- name: Push the MOTD
+  template:
+    src: motd.j2
+    dest: /etc/motd
+    owner: root
+    group: root
+    mode: 0644
+
+- name: Push issue banner
+  template:
+    src: issue.j2
+    dest: /etc/issue
+    owner: root
+    group: root
+    mode: 0644
+
+# BREAKS SSH - WILL FIX LATER
+# - name: Enables access.conf with pam
+#   template:
+#     src: sshd.j2
+#     dest: /etc/pam.d/sshd
+#     owner: root
+#     group: root
+#     mode: 0644
+...

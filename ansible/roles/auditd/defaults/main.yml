@@ -1,0 +1,7 @@
+---
+audit_package:
+  RedHat: audit
+  CentOS: audit
+  SLES: audit
+  Debian: auditd
+...

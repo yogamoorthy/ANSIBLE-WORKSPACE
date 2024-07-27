@@ -7,7 +7,7 @@
     name: "{{ item }}"
     state: stopped
   with_items: "{{ application | default([]) }}"
-  when: application | default([]) != "everseen"
+  when: item not in ["everseen", "wms"]
   notify: Start Main Application(s)
 
 - name: Shutdown Everseen, if Everseen Server
@@ -16,6 +16,10 @@
   become: yes
   become_user: podman-svc
   when: application == "everseen"
+
+- name: Shutdown WMS apps, if WMS Server
+  import_tasks: wms.yml
+  when: application == "wms"
 
 - name: Import Update Tasks
   import_tasks: update.yml

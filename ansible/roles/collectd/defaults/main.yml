@@ -1,0 +1,12 @@
+---
+#------ Download URL Creation ----------------------------------------------------------------------------------------------#
+archive_compression: "tar.bz2"
+#download_repo: "enterprise-resources"
+download_repo: "utilities-local"
+package_name: "collectd"
+package_version: "5.12.0"
+#download_url: "https://artifactory.hy-vee.com/artifactory/{{ download_repo }}/{{package_name}}-{{package_version}}.{{archive_compression}}"
+download_url: "https://artifactory.prod.hy-vee.cloud/artifactory/{{ download_repo }}/{{package_name}}-{{package_version}}.{{archive_compression}}"
+source_path: "{{ package_name}}-{{package_version}}"
+
+gk_app: False

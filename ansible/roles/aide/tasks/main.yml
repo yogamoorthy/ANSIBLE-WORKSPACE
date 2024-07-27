@@ -1,0 +1,41 @@
+---
+#Ensure AIDE packages are installed SSI-220220
+- name: Ensure AIDE packages are installed
+  package:
+    name: aide
+    state: "{{ aide_state }}"
+
+- name: Ensure /etc/aide.conf in managed
+  template:
+    src: aide.conf.j2
+    dest: /etc/aide.conf
+    owner: root
+    group: root
+    mode: 0600
+
+- name: Check if aide db exists
+  stat:
+    path: "{{ aide_db[ansible_distribution] }}"
+  register: aide_db_exists
+
+#Run initialization if new DB
+- name: Initialize new aide DB
+  shell: "{{ alias_aide[ansible_distribution] }} --init && mv /var/lib/aide/aide.db.new.gz /var/lib/aide/aide.db.gz"
+  when: 
+  - aide_db_exists.stat.exists == False
+  - ansible_distribution == "RedHat" or ansible_distribution == "SLES"
+
+- name: Debian - Initialize new aide DB
+  shell: "aideinit && mv /var/lib/aide/aide.db.new /var/lib/aide/aide.db"
+  when: 
+  - aide_db_exists.stat.exists == False
+  - ansible_distribution == "Debian"
+
+#Ensure periodic execution of file integrity SSI-220220
+- name: File Integrity Check
+  cron:
+    name: "file integrity check"
+    minute: "0"
+    hour: "5"
+    job: "{{ alias_aide[ansible_distribution] }} --check > /dev/null"
+...

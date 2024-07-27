@@ -1,9 +1,17 @@
 ---
 - hosts: all
   gather_facts: true
+  pre_tasks:
+    - name: Check if we are a database server
+      set_fact:
+        is_db_server: "{{ inventory_hostname is match('.*db.*') }}"
 
 - hosts: all
   gather_facts: false
+  pre_tasks:
+  - name: Skip if we are a database server
+    meta: end_play
+    when: is_db_server
   roles:
     - role: snapshot
   vars: 

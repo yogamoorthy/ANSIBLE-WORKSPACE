@@ -1,3 +1,5 @@
 ---
 partner_node: lmrdevapp1a-v
+# Dashboard is not installed on the B node.
+db_name: "null"
 ...

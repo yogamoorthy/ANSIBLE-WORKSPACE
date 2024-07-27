@@ -1,0 +1,11 @@
+---
+- name: yum install collectd
+  package:
+    name: collectd
+
+- name: Load collectd daemon
+  ansible.builtin.systemd:
+    daemon_reload: yes
+    state: restarted
+    enabled: yes
+    name: collectd

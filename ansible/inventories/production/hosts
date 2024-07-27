@@ -417,10 +417,10 @@ s2badge_prod_india
 
 [s2badge_prod_net]
 s2netbox1-v ansible_host=10.200.65.180
-s2netbox2-v ansibile_host=10.215.1.56
+s2netbox2-v ansible_host=10.215.1.56
 s2netbox3-v ansible_host=10.200.66.64
 s2netbox4-v ansible_host=10.200.66.71
-s2netbox5-v ansibile_host=10.200.66.108
+s2netbox5-v ansible_host=10.200.66.108
 s2netbox6-v ansible_host=10.200.66.116
 s2netbox7-v ansible_host=10.200.66.191
 

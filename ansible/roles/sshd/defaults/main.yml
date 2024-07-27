@@ -1,0 +1,10 @@
+---
+default_ssh_admins: "linux-admins"
+ad_action: "join"
+
+ssh_client: 
+  RedHat: openssh-clients
+  CentOS: openssh-clients
+  Debian: openssh-client
+  # SLES: 
+...

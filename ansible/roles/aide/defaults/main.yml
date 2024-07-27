@@ -1,0 +1,16 @@
+---
+aide_enabled: False
+aide_state: present
+
+alias_aide:
+  RedHat: /sbin/aide
+  CentOS: /sbin/aide
+  SLES: /usr/bin/aide
+  Debian: /bin/aide
+
+aide_db:
+  RedHat: /var/lib/aide/aide.db.gz
+  CentOS: /var/lib/aide/aide.db.gz
+  SLES: /var/lib/aide/aide.db.gz
+  Debian: /var/lib/aide/aide.db
+...

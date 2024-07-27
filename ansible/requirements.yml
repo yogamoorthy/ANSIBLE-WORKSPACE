@@ -47,19 +47,19 @@
   scm: git
   version: master   
 
-# - src: ssh://git@github.hy-vee.cloud/ansible/auditd.git
-#   scm: git
-#   version: master
+- src: ssh://git@github.hy-vee.cloud/ansible/auditd.git
+  scm: git
+  version: master
 
-# - src: ssh://git@github.hy-vee.cloud/ansible/collectd.git
-#   scm: git
-#   version: master
+- src: ssh://git@github.hy-vee.cloud/ansible/collectd.git
+  scm: git
+  version: master
 
-# - src: ssh://git@github.hy-vee.cloud/ansible/sshd.git
-#   scm: git
-#   version: master
+- src: ssh://git@github.hy-vee.cloud/ansible/sshd.git
+  scm: git
+  version: master
 
-# - src: ssh://git@github.hy-vee.cloud/ansible/aide.git
-#   scm: git
-#   version: master
+- src: ssh://git@github.hy-vee.cloud/ansible/aide.git
+  scm: git
+  version: master
 ...

@@ -10,37 +10,12 @@
     name: "{{ item }}"
     state: started
   with_items: "{{ application }}"
-  when: application != "everseen"
+  when: item not in ["everseen", "wms"]
 
-- name: Check Service Status
-  shell: systemctl status {{ item }} | grep "Active:" | awk '{print $2}'
-  with_items: "{{ application }}"
-  register: SERV
+- name: Start WMS apps, if WMS Server
+  import_tasks: wms.yml
+  when: application == "wms"
 
-- name: Grab New Uptime 
-  shell: uptime | cut -d ',' -f1 | awk '{print $2,$3,$4}'
-  register: uptime
-  become: yes
-
-- name: Build Out CSV Content
-  set_fact:
-    dev_info: "{{ ansible_hostname }},{{ ansible_default_ipv4.address }},{{ SERV.results | map(attribute='stdout') | join(', ') }},{{ uptime.stdout }}"
-
-- name: Generate CSV File
-  template: 
-    src: templates/post_upgrade.txt.j2 
-    dest: "{{ csv_path }}/post_checks.csv"
-  notify: Send Post Patching Email
-
-- name: Send Post Patching Email
-  mail:
-    host: "{{ email_host }}"
-    from: "{{ email_from }}"
-    port: 25
-    to: "{{ email_to }}"
-    subject: "[Ansible] Postcheck Report"
-    body: "{{ lookup('template', 'templates/post_report.html.j2', errors='ignore') }}"
-    attach: "{{ csv_path }}/post_checks.csv"
-    subtype: html
-  run_once: true
+- name: Import Post Check Tasks
+  import_tasks: post_checks.yml
 ...
